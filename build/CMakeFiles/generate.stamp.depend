@@ -1,0 +1,24 @@
+# CMake generation dependency list for this directory.
+C:/Program Files/CMake/share/cmake-3.24/Modules/CMakeCXXInformation.cmake
+C:/Program Files/CMake/share/cmake-3.24/Modules/CMakeCommonLanguageInclude.cmake
+C:/Program Files/CMake/share/cmake-3.24/Modules/CMakeGenericSystem.cmake
+C:/Program Files/CMake/share/cmake-3.24/Modules/CMakeInitializeConfigs.cmake
+C:/Program Files/CMake/share/cmake-3.24/Modules/CMakeLanguageInformation.cmake
+C:/Program Files/CMake/share/cmake-3.24/Modules/CMakeParseImplicitLinkInfo.cmake
+C:/Program Files/CMake/share/cmake-3.24/Modules/CMakeRCInformation.cmake
+C:/Program Files/CMake/share/cmake-3.24/Modules/CMakeSystemSpecificInformation.cmake
+C:/Program Files/CMake/share/cmake-3.24/Modules/CMakeSystemSpecificInitialize.cmake
+C:/Program Files/CMake/share/cmake-3.24/Modules/Compiler/CMakeCommonCompilerMacros.cmake
+C:/Program Files/CMake/share/cmake-3.24/Modules/Compiler/MSVC-CXX.cmake
+C:/Program Files/CMake/share/cmake-3.24/Modules/Compiler/MSVC.cmake
+C:/Program Files/CMake/share/cmake-3.24/Modules/FindOpenMP.cmake
+C:/Program Files/CMake/share/cmake-3.24/Modules/FindPackageHandleStandardArgs.cmake
+C:/Program Files/CMake/share/cmake-3.24/Modules/FindPackageMessage.cmake
+C:/Program Files/CMake/share/cmake-3.24/Modules/Platform/Windows-MSVC-CXX.cmake
+C:/Program Files/CMake/share/cmake-3.24/Modules/Platform/Windows-MSVC.cmake
+C:/Program Files/CMake/share/cmake-3.24/Modules/Platform/Windows.cmake
+C:/Program Files/CMake/share/cmake-3.24/Modules/Platform/WindowsPaths.cmake
+C:/Users/pedro/OneDrive/Documentos/IGD/INF584/INF584_Assignment_3_Solution/CMakeLists.txt
+C:/Users/pedro/OneDrive/Documentos/IGD/INF584/INF584_Assignment_3_Solution/build/CMakeFiles/3.24.2/CMakeCXXCompiler.cmake
+C:/Users/pedro/OneDrive/Documentos/IGD/INF584/INF584_Assignment_3_Solution/build/CMakeFiles/3.24.2/CMakeRCCompiler.cmake
+C:/Users/pedro/OneDrive/Documentos/IGD/INF584/INF584_Assignment_3_Solution/build/CMakeFiles/3.24.2/CMakeSystem.cmake

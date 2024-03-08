@@ -1,0 +1,32 @@
+^C:\USERS\PEDRO\ONEDRIVE\DOCUMENTOS\IGD\INF584\INF584_ASSIGNMENT_3_SOLUTION\BUILD\CMAKEFILES\B687BB1A9DCD631B2455109B877ACBF6\GLAD.C.RULE
+setlocal
+cd C:\Users\pedro\OneDrive\Documentos\IGD\INF584\INF584_Assignment_3_Solution\External\glad
+if %errorlevel% neq 0 goto :cmEnd
+C:
+if %errorlevel% neq 0 goto :cmEnd
+C:\Python311\python.exe -m glad --profile=core --out-path=C:/Users/pedro/OneDrive/Documentos/IGD/INF584/INF584_Assignment_3_Solution/build/External/glad --api=gl=4.1 --generator=c --extensions= --spec=gl
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+^C:\USERS\PEDRO\ONEDRIVE\DOCUMENTOS\IGD\INF584\INF584_ASSIGNMENT_3_SOLUTION\BUILD\CMAKEFILES\5F15D59C19BBC685540D42586D9E8CE7\GLAD-GENERATE-FILES.RULE
+setlocal
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+^C:\USERS\PEDRO\ONEDRIVE\DOCUMENTOS\IGD\INF584\INF584_ASSIGNMENT_3_SOLUTION\EXTERNAL\GLAD\CMAKELISTS.TXT
+setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -SC:/Users/pedro/OneDrive/Documentos/IGD/INF584/INF584_Assignment_3_Solution -BC:/Users/pedro/OneDrive/Documentos/IGD/INF584/INF584_Assignment_3_Solution/build --check-stamp-file C:/Users/pedro/OneDrive/Documentos/IGD/INF584/INF584_Assignment_3_Solution/build/External/glad/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd

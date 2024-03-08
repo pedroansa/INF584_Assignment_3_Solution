@@ -1,0 +1,14 @@
+# CMake generation dependency list for this directory.
+C:/Program Files/CMake/share/cmake-3.24/Modules/CMakeCInformation.cmake
+C:/Program Files/CMake/share/cmake-3.24/Modules/CMakeCommonLanguageInclude.cmake
+C:/Program Files/CMake/share/cmake-3.24/Modules/CMakeLanguageInformation.cmake
+C:/Program Files/CMake/share/cmake-3.24/Modules/Compiler/CMakeCommonCompilerMacros.cmake
+C:/Program Files/CMake/share/cmake-3.24/Modules/Compiler/MSVC-C.cmake
+C:/Program Files/CMake/share/cmake-3.24/Modules/Compiler/MSVC.cmake
+C:/Program Files/CMake/share/cmake-3.24/Modules/FindPackageHandleStandardArgs.cmake
+C:/Program Files/CMake/share/cmake-3.24/Modules/FindPackageMessage.cmake
+C:/Program Files/CMake/share/cmake-3.24/Modules/FindPythonInterp.cmake
+C:/Program Files/CMake/share/cmake-3.24/Modules/Platform/Windows-MSVC-C.cmake
+C:/Program Files/CMake/share/cmake-3.24/Modules/Platform/Windows-MSVC.cmake
+C:/Users/pedro/OneDrive/Documentos/IGD/INF584/INF584_Assignment_3_Solution/External/glad/CMakeLists.txt
+C:/Users/pedro/OneDrive/Documentos/IGD/INF584/INF584_Assignment_3_Solution/build/CMakeFiles/3.24.2/CMakeCCompiler.cmake

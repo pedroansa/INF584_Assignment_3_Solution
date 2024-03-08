@@ -1,0 +1,10 @@
+^C:\USERS\PEDRO\ONEDRIVE\DOCUMENTOS\IGD\INF584\INF584_ASSIGNMENT_3_SOLUTION\BUILD\CMAKEFILES\3360864A0BEBE76DCFF42C9B25A07011\GENERATE.STAMP.RULE
+setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -SC:/Users/pedro/OneDrive/Documentos/IGD/INF584/INF584_Assignment_3_Solution -BC:/Users/pedro/OneDrive/Documentos/IGD/INF584/INF584_Assignment_3_Solution/build --check-stamp-list CMakeFiles/generate.stamp.list --vs-solution-file C:/Users/pedro/OneDrive/Documentos/IGD/INF584/INF584_Assignment_3_Solution/build/MyRenderer.sln
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
