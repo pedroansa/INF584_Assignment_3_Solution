@@ -1,8 +1,8 @@
-# Install script for directory: C:/Users/pedro/OneDrive/Documentos/IGD/INF584/INF584_Assignment_3_Solution/External/glm
+# Install script for directory: /home/tintin/Projets/C++/SFML2.5/OGL4/INF584_Assignment_3_Solution/External/glm
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
-  set(CMAKE_INSTALL_PREFIX "C:/Program Files (x86)/MyRenderer")
+  set(CMAKE_INSTALL_PREFIX "/usr/local")
 endif()
 string(REGEX REPLACE "/$" "" CMAKE_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}")
 
@@ -12,7 +12,7 @@ if(NOT DEFINED CMAKE_INSTALL_CONFIG_NAME)
     string(REGEX REPLACE "^[^A-Za-z0-9_]+" ""
            CMAKE_INSTALL_CONFIG_NAME "${BUILD_TYPE}")
   else()
-    set(CMAKE_INSTALL_CONFIG_NAME "Release")
+    set(CMAKE_INSTALL_CONFIG_NAME "")
   endif()
   message(STATUS "Install configuration: \"${CMAKE_INSTALL_CONFIG_NAME}\"")
 endif()
@@ -27,32 +27,42 @@ if(NOT CMAKE_INSTALL_COMPONENT)
   endif()
 endif()
 
+# Install shared libraries without execute permission?
+if(NOT DEFINED CMAKE_INSTALL_SO_NO_EXE)
+  set(CMAKE_INSTALL_SO_NO_EXE "0")
+endif()
+
 # Is this installation the result of a crosscompile?
 if(NOT DEFINED CMAKE_CROSSCOMPILING)
   set(CMAKE_CROSSCOMPILING "FALSE")
 endif()
 
-if(CMAKE_INSTALL_COMPONENT STREQUAL "Unspecified" OR NOT CMAKE_INSTALL_COMPONENT)
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/include" TYPE DIRECTORY FILES "C:/Users/pedro/OneDrive/Documentos/IGD/INF584/INF584_Assignment_3_Solution/External/glm/glm")
+# Set default install directory permissions.
+if(NOT DEFINED CMAKE_OBJDUMP)
+  set(CMAKE_OBJDUMP "/usr/bin/objdump")
 endif()
 
 if(CMAKE_INSTALL_COMPONENT STREQUAL "Unspecified" OR NOT CMAKE_INSTALL_COMPONENT)
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/cmake/glm" TYPE FILE FILES
-    "C:/Users/pedro/OneDrive/Documentos/IGD/INF584/INF584_Assignment_3_Solution/build/External/glm/lib/cmake/glm/glmConfig.cmake"
-    "C:/Users/pedro/OneDrive/Documentos/IGD/INF584/INF584_Assignment_3_Solution/build/External/glm/glmConfigVersion.cmake"
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/include" TYPE DIRECTORY FILES "/home/tintin/Projets/C++/SFML2.5/OGL4/INF584_Assignment_3_Solution/External/glm/glm")
+endif()
+
+if(CMAKE_INSTALL_COMPONENT STREQUAL "Unspecified" OR NOT CMAKE_INSTALL_COMPONENT)
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib64/cmake/glm" TYPE FILE FILES
+    "/home/tintin/Projets/C++/SFML2.5/OGL4/INF584_Assignment_3_Solution/build/External/glm/lib64/cmake/glm/glmConfig.cmake"
+    "/home/tintin/Projets/C++/SFML2.5/OGL4/INF584_Assignment_3_Solution/build/External/glm/glmConfigVersion.cmake"
     )
 endif()
 
 if(CMAKE_INSTALL_COMPONENT STREQUAL "Unspecified" OR NOT CMAKE_INSTALL_COMPONENT)
-  if(EXISTS "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/lib/cmake/glm/glmTargets.cmake")
+  if(EXISTS "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/lib64/cmake/glm/glmTargets.cmake")
     file(DIFFERENT _cmake_export_file_changed FILES
-         "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/lib/cmake/glm/glmTargets.cmake"
-         "C:/Users/pedro/OneDrive/Documentos/IGD/INF584/INF584_Assignment_3_Solution/build/External/glm/CMakeFiles/Export/820b120f1c4a30a4249350d158e86720/glmTargets.cmake")
+         "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/lib64/cmake/glm/glmTargets.cmake"
+         "/home/tintin/Projets/C++/SFML2.5/OGL4/INF584_Assignment_3_Solution/build/External/glm/CMakeFiles/Export/64e5c395e8af58ef6f6374c61a7a4d32/glmTargets.cmake")
     if(_cmake_export_file_changed)
-      file(GLOB _cmake_old_config_files "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/lib/cmake/glm/glmTargets-*.cmake")
+      file(GLOB _cmake_old_config_files "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/lib64/cmake/glm/glmTargets-*.cmake")
       if(_cmake_old_config_files)
         string(REPLACE ";" ", " _cmake_old_config_files_text "${_cmake_old_config_files}")
-        message(STATUS "Old export file \"$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/lib/cmake/glm/glmTargets.cmake\" will be replaced.  Removing files [${_cmake_old_config_files_text}].")
+        message(STATUS "Old export file \"$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/lib64/cmake/glm/glmTargets.cmake\" will be replaced.  Removing files [${_cmake_old_config_files_text}].")
         unset(_cmake_old_config_files_text)
         file(REMOVE ${_cmake_old_config_files})
       endif()
@@ -60,17 +70,17 @@ if(CMAKE_INSTALL_COMPONENT STREQUAL "Unspecified" OR NOT CMAKE_INSTALL_COMPONENT
     endif()
     unset(_cmake_export_file_changed)
   endif()
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/cmake/glm" TYPE FILE FILES "C:/Users/pedro/OneDrive/Documentos/IGD/INF584/INF584_Assignment_3_Solution/build/External/glm/CMakeFiles/Export/820b120f1c4a30a4249350d158e86720/glmTargets.cmake")
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib64/cmake/glm" TYPE FILE FILES "/home/tintin/Projets/C++/SFML2.5/OGL4/INF584_Assignment_3_Solution/build/External/glm/CMakeFiles/Export/64e5c395e8af58ef6f6374c61a7a4d32/glmTargets.cmake")
 endif()
 
 if(CMAKE_INSTALL_COMPONENT STREQUAL "Unspecified" OR NOT CMAKE_INSTALL_COMPONENT)
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/pkgconfig" TYPE FILE FILES "C:/Users/pedro/OneDrive/Documentos/IGD/INF584/INF584_Assignment_3_Solution/build/External/glm/glm.pc")
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib64/pkgconfig" TYPE FILE FILES "/home/tintin/Projets/C++/SFML2.5/OGL4/INF584_Assignment_3_Solution/build/External/glm/glm.pc")
 endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for each subdirectory.
-  include("C:/Users/pedro/OneDrive/Documentos/IGD/INF584/INF584_Assignment_3_Solution/build/External/glm/glm/cmake_install.cmake")
-  include("C:/Users/pedro/OneDrive/Documentos/IGD/INF584/INF584_Assignment_3_Solution/build/External/glm/test/cmake_install.cmake")
+  include("/home/tintin/Projets/C++/SFML2.5/OGL4/INF584_Assignment_3_Solution/build/External/glm/glm/cmake_install.cmake")
+  include("/home/tintin/Projets/C++/SFML2.5/OGL4/INF584_Assignment_3_Solution/build/External/glm/test/cmake_install.cmake")
 
 endif()
 

@@ -1,6 +1,4 @@
 #pragma once
-#include <GLFW/glfw3.h>
-
 #include <glm/glm.hpp>
 #include <glm/ext.hpp>
 #include <glm/ext/matrix_transform.hpp>
@@ -9,6 +7,8 @@
 #include "Transform.h"
 #include "FboShadowMap.h"
 #include "ShaderProgram.h"
+
+#include <GLFW/glfw3.h>
 
 class LightSource : public Transform {
 public:

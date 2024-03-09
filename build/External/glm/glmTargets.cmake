@@ -7,7 +7,7 @@ if(CMAKE_VERSION VERSION_LESS "2.8.3")
    message(FATAL_ERROR "CMake >= 2.8.3 required")
 endif()
 cmake_policy(PUSH)
-cmake_policy(VERSION 2.8.3...3.22)
+cmake_policy(VERSION 2.8.3...3.25)
 #----------------------------------------------------------------
 # Generated CMake target import file.
 #----------------------------------------------------------------
@@ -54,7 +54,7 @@ unset(_cmake_expected_targets)
 add_library(glm INTERFACE IMPORTED)
 
 set_target_properties(glm PROPERTIES
-  INTERFACE_INCLUDE_DIRECTORIES "C:/Users/pedro/OneDrive/Documentos/IGD/INF584/INF584_Assignment_3_Solution/External/glm"
+  INTERFACE_INCLUDE_DIRECTORIES "/home/tintin/Projets/C++/SFML2.5/OGL4/INF584_Assignment_3_Solution/External/glm"
 )
 
 # This file does not depend on other imported targets which have

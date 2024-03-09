@@ -1,4 +1,4 @@
-prefix=C:/Program Files (x86)/MyRenderer
+prefix=/usr/local
 includedir=${prefix}/include
 
 Name: GLM
