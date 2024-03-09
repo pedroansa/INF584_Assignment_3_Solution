@@ -15,6 +15,11 @@ struct Material {
 	float metallicness;
 };
 
+//ShadowMAP PART
+uniform sampler2D shadowMap0;
+uniform sampler2D shadowMap1;
+uniform sampler2D shadowMap2;
+
 uniform mat4 viewMat;
 uniform int numOfLightSources;
 uniform LightSource lightSourceSet[MAX_NUM_OF_LIGHT_SOURCES];
@@ -23,6 +28,36 @@ uniform Material material;
 in vec3 fNormal; // Shader input, linearly interpolated by default from the previous stage (here the vertex shader)
 in vec3 fPosition; // Shader input, linearly interpolated by default from the previous stage (here the vertex shader)
 out vec4 colorResponse; // Shader output: the color response attached to this fragment
+
+//Shadow
+float shadow = 1;
+in vec4 lightsPos[3];
+
+float ShadowCalculation(int x)
+{
+  // perform perspective divide
+  float bias = 0.05;
+  vec4 lightViewPos = lightsPos[x];
+  
+  vec3 projCoords = lightViewPos.xyz / lightViewPos.w;
+  projCoords = projCoords * 0.5 + 0.5;
+  float closestDepth = 0;
+
+  if (x == 0)
+    closestDepth = texture(shadowMap0, projCoords.xy).r;
+  else if (x == 1)
+    closestDepth = texture(shadowMap1, projCoords.xy).r;
+  else
+    closestDepth = texture(shadowMap2, projCoords.xy).r;
+
+  float currentDepth = projCoords.z-bias;
+  
+  if (closestDepth <  currentDepth){ 
+    shadow -=0.5 ;
+  }
+
+  return shadow;
+}
 
 vec3 toneMap (vec3 radiance, float exposure, float gamma) {
 	vec3 rgb = exposure * radiance;
@@ -82,6 +117,7 @@ void main () {
 	vec3 wo = normalize (-fPosition);
 	for (int i = 0; i < min (MAX_NUM_OF_LIGHT_SOURCES, numOfLightSources); ++i) {
 		LightSource l = lightSourceSet[i];
+		shadow = ShadowCalculation(i);
 		vec3 lightPosition = vec3 (viewMat * vec4 (l.position, 1.0));
 		vec3 wi = normalize (lightPosition - fPosition);
 		vec3 li = attenuation (l, lightPosition, fPosition);
@@ -92,5 +128,5 @@ void main () {
 		radiance += li * fr * nDotL;
 	}
 	//radiance = toneMap (radiance, 1.0, 1.0);
-	colorResponse = vec4 (radiance, 1.0);
+	colorResponse = vec4 (shadow * radiance, 1.0);
 }

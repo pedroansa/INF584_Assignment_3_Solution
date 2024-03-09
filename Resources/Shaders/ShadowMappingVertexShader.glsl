@@ -1,3 +1,4 @@
+#version 410 core
 // input vertex data, different for all executions of this shader
 layout(location=0) in vec3 vPositionModel;
 
@@ -8,3 +9,4 @@ uniform mat4 model;
 
 void main() {
   gl_Position = depthMVP*vec4(vPositionModel, 1);
+}

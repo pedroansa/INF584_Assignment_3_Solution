@@ -19,15 +19,16 @@ public:
 	inline int getShadowMapTex () const { return m_shadowMapTexOnGPU; }
 	inline float getIntensity () const { return m_intensity; }
 	inline void setIntensity (float intensity) { m_intensity = intensity; }
+	inline glm::mat4 getDepthMVP() const { return depthMVP ;}
 	void allocateShadowMapFbo(unsigned int w=800, unsigned int h=600){ m_shadowMap.allocate(w, h); }
     void bindShadowMap(){ m_shadowMap.bindFbo(); }
-	void setupCameraForShadowMapping(std::shared_ptr<ShaderProgram> shader_shadow_map_Ptr, const glm::vec3 scene_center, const float scene_radius);
+	void setupCameraForShadowMapping(std::shared_ptr<ShaderProgram> shader_shadow_map_Ptr, std::shared_ptr<Camera> camera);
+	FboShadowMap m_shadowMap;
 
 private:
 	glm::vec3 direction = glm::vec3(0.f, 0.f, -1.f);
 	glm::vec3 m_color = glm::vec3 (0.f, 0.f, 0.f);
 	float m_intensity = 1.f;
-	FboShadowMap m_shadowMap;
 	int m_shadowMapTexOnGPU;
 	glm::mat4 depthMVP;
 };
