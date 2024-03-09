@@ -12,9 +12,6 @@
 #include "Resources.h"
 #include "Error.h"
 
-GLuint depthMapFBO;
- GLuint depthMap;
-
 void Rasterizer::init (const std::string & basePath, const std::shared_ptr<Scene> scenePtr) {
 	glCullFace (GL_BACK);     // Specifies the faces to cull (here the ones pointing away from the camera)
 	glEnable (GL_CULL_FACE); // Enables face culling (based on the orientation defined by the CW/CCW enumeration).
@@ -30,35 +27,6 @@ void Rasterizer::init (const std::string & basePath, const std::shared_ptr<Scene
 	size_t numOfMeshes = scenePtr->numOfMeshes ();
 	for (size_t i = 0; i < numOfMeshes; i++) 
 		m_vaos.push_back (toGPU (scenePtr->mesh (i)));
-
-
-		// SHADOW MAP PART
-	glGenFramebuffers(1, &depthMapFBO); 
-
-	const unsigned int SHADOW_WIDTH = 1024, SHADOW_HEIGHT = 1024;
-
-	glGenTextures(1, &depthMap);
-	glBindTexture(GL_TEXTURE_2D, depthMap);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, 
-				SHADOW_WIDTH, SHADOW_HEIGHT, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT); 
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);   
-	float clampColor[] = {1.0f, 1.0f, 1.0f, 1.0f};
-	glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, clampColor);
-
-	glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthMap, 0);
-	glDrawBuffer(GL_NONE);
-	glReadBuffer(GL_NONE);
-	glBindFramebuffer(GL_FRAMEBUFFER, 0); 
-
-	glm::mat4 orthgonalProjection = glm::ortho(-35.0f,35.0f,-35.0f,35.0f, 0.1f, 75.0f);
-	glm::mat4 lightView = glm::lookAt(20.0f * scenePtr->lightSources()[0].getTranslation(), glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-	glm::mat4 lightProjection = orthgonalProjection * lightView;
-
-	m_shadowMapingShaderProgramPtr->set("lightProjection", glm::value_ptr(lightProjection));
 
 
 }
@@ -84,15 +52,6 @@ void Rasterizer::loadShaderProgram (const std::string & basePath) {
 		m_displayShaderProgramPtr->set ("imageTex", 0);
 	} catch (std::exception & e) {
 		exitOnCriticalError (std::string ("[Error loading display shader program]") + e.what ());
-	}
-	m_shadowMapingShaderProgramPtr.reset ();
-	try {
-		std::string shaderPath = basePath + "/" + SHADER_PATH;
-		m_shadowMapingShaderProgramPtr = ShaderProgram::genBasicShaderProgram (shaderPath + "/ShadowMappingVertexShader.glsl",
-													         	 		  shaderPath + "/ShadowMappingFragmentShader.glsl");
-		//m_shadowMapingShaderProgramPtr->set ("imageTex", 0);
-	} catch (std::exception & e) {
-		exitOnCriticalError (std::string ("[Error loading shadow shader program]") + e.what ());
 	}
 }
 
@@ -148,16 +107,54 @@ void Draw(std::shared_ptr<ShaderProgram> shader, std::shared_ptr<Scene> scenePtr
 
 }
 
+void LightSource::setupCameraForShadowMapping(
+    std::shared_ptr<ShaderProgram> shader_shadow_map_Ptr,
+    const glm::vec3 scene_center,
+    const float scene_radius)
+  {
+    // TODO: compute the MVP matrix from the light's point of view
+      float perto = 0.01f, longe = 10.0f;
+
+      glm::mat4 lightProjection, lightView, modelMatrix;
+
+      lightProjection = glm::ortho(-scene_radius, scene_radius,-scene_radius, scene_radius, perto, longe);
+      lightView = glm::lookAt(this->getTranslation(), scene_center, glm::vec3(0.0, 1.0, 0.0));
+      depthMVP = lightProjection * lightView;
+      shader_shadow_map_Ptr->set("depthMVP", depthMVP);
+  }
+
 // The main rendering call
 void Rasterizer::render (std::shared_ptr<Scene> scenePtr) {
-	glEnable(GL_DEPTH_TEST);
+	const auto & lightSources = scenePtr->lightSources();
+	int numOfLightSources = std::min (8, int (lightSources.size ()));
+
+	//glEnable(GL_DEPTH_TEST);
+	glEnable(GL_CULL_FACE);
+	glCullFace(GL_FRONT);
+
+	m_pbrShaderProgramPtr->use();
+
+	for(size_t i = 0; i < numOfLightSources; ++i) {
+      LightSource li = lightSources[i];
+	  
+      li.setupCameraForShadowMapping(m_pbrShaderProgramPtr, glm::vec3(0), 1.f*1.5f);
+	  li.bindShadowMap();
+
+      // TODO: render the objects in the scene
+      m_pbrShaderProgramPtr->set("model", glm::mat4(1.0f));
+      draw (0, scenePtr->mesh (0)->triangleIndices().size ());
+    }
+
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    glViewport(0, 0, 1024, 768);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // Erase the color and z buffers.
+    glCullFace(GL_BACK);
+
 
 	const glm::vec3 & bgColor = scenePtr->backgroundColor ();
 	glClearColor (bgColor[0], bgColor[1], bgColor[2], 1.f);
 	glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // Erase the color and z buffers.
 
-	const auto & lightSources = scenePtr->lightSources();
-	int numOfLightSources = std::min (8, int (lightSources.size ()));
 	m_pbrShaderProgramPtr->set ("numOfLightSources", numOfLightSources);
 	for (size_t i = 0; i < numOfLightSources; ++i) {
 		const auto & li = lightSources[i];

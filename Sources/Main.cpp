@@ -41,6 +41,49 @@ namespace fs = std::filesystem;
 
 using namespace std;
 
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image.h"
+
+GLuint loadTextureFromFileToGPU(const std::string &filename)
+{
+  int width, height, numComponents;
+  // Loading the image in CPU memory using stbd_image
+  unsigned char *data = stbi_load(
+    filename.c_str(),
+    &width,
+    &height,
+    &numComponents, // 1 for a 8 bit greyscale image, 3 for 24bits RGB image, 4 for 32bits RGBA image
+    0);
+
+  // Create a texture in GPU memory
+  GLuint texID;
+  glGenTextures(1, &texID);
+  glBindTexture(GL_TEXTURE_2D, texID);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+  // Uploading the image data to GPU memory
+  glTexImage2D(
+    GL_TEXTURE_2D,
+    0,
+    (numComponents == 1 ? GL_RED : numComponents == 3 ? GL_RGB : GL_RGBA), // For greyscale images, we store them in the RED channel
+    width,
+    height,
+    0,
+    (numComponents == 1 ? GL_RED : numComponents == 3 ? GL_RGB : GL_RGBA), // For greyscale images, we store them in the RED channel
+    GL_UNSIGNED_BYTE,
+    data);
+
+  // Generating mipmaps for filtered texture fetch
+  glGenerateMipmap(GL_TEXTURE_2D);
+
+  // Freeing the now useless CPU memory
+  stbi_image_free(data);
+  glBindTexture(GL_TEXTURE_2D, 0); // unbind the texture
+  return texID;
+}
+
 // Window parameters
 static GLFWwindow * windowPtr = nullptr;
 static std::shared_ptr<Scene> scenePtr;
@@ -248,23 +291,34 @@ void initScene () {
 	// Lights
 	auto & lightSources = scenePtr->lightSources();
 	float scaleAwareIntensity = meshScale * 6.f;
+     unsigned int shadow_map_width=2000, shadow_map_height=2000; // play with these parameters
+
 	scaleAwareIntensity *= scaleAwareIntensity;
 	LightSource l0;
 	l0.setTranslation (center + normalize (glm::vec3 (0.f, 2.f, 2.f)) * meshScale * 3.f);
 	l0.setColor (glm::vec3 (1.f));
 	l0.setIntensity (scaleAwareIntensity);
+	l0.setShadowMapTex(0);
+	glActiveTexture(GL_TEXTURE0 + l0.getShadowMapTex());
+	l0.allocateShadowMapFbo(shadow_map_width, shadow_map_height);
 	lightSources.push_back (l0);
 	
 	LightSource l1;
 	l1.setTranslation (center + normalize (glm::vec3 (-2.f, 0.f, 0.f)) * meshScale * 3.f);
 	l1.setColor (glm::vec3 (0.f, 0.4f, 0.8f));
 	l1.setIntensity (scaleAwareIntensity);
+	l1.setShadowMapTex(1);
+	glActiveTexture(GL_TEXTURE0 + l1.getShadowMapTex());
+	l1.allocateShadowMapFbo(shadow_map_width, shadow_map_height);
 	lightSources.push_back (l1);
 
 	LightSource l2;
 	l2.setTranslation (center + normalize (glm::vec3 (2.f, 0.f, 0.f)) * meshScale * 3.f);
 	l2.setColor (glm::vec3 (0.9f, 0.3f, 0.f));
 	l2.setIntensity (scaleAwareIntensity);
+	l2.setShadowMapTex(2);
+	glActiveTexture(GL_TEXTURE0 + l2.getShadowMapTex());
+	l2.allocateShadowMapFbo(shadow_map_width, shadow_map_height);
 	lightSources.push_back (l2);
 	
 
@@ -343,8 +397,10 @@ void parseCommandLine (int argc, char ** argv) {
 int main (int argc, char ** argv) {
 	parseCommandLine (argc, argv);
 	init (); 
+
 	while (!glfwWindowShouldClose (windowPtr)) {
 		update (static_cast<float> (glfwGetTime ()));
+		glEnable(GL_DEPTH_TEST);
 		render ();
 		glfwSwapBuffers (windowPtr);
 		glfwPollEvents ();

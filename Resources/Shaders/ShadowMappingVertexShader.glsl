@@ -1,11 +1,10 @@
-#version 410 core // Minimal GL version support expected from the GPU
+// input vertex data, different for all executions of this shader
+layout(location=0) in vec3 vPositionModel;
 
-layout(location=0) in vec3 aPos;
+// transformation bringing the scene into light's point of view
+uniform mat4 depthMVP;
 
-uniform mat4 lightProjection;
 uniform mat4 model;
 
-
 void main() {
-    gl_Position = lightProjection * model * vec4 (aPos, 1.0);
-}
+  gl_Position = depthMVP*vec4(vPositionModel, 1);
