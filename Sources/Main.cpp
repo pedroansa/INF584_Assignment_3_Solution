@@ -250,7 +250,7 @@ void initGLFW () {
 		std::exit (EXIT_FAILURE);
 	}
 
-	// Load the OpenGL context in the GLFW window using GLAD OpenGL wrangler
+		// Load the OpenGL context in the GLFW window using GLAD OpenGL wrangler
 	glfwMakeContextCurrent (windowPtr);
 
 	// Connect the callbacks for interactive control 
@@ -291,21 +291,11 @@ void initScene () {
 	// Lights
 	auto & lightSources = scenePtr->lightSources();
 	float scaleAwareIntensity = meshScale * 6.f;
-    unsigned int shadow_map_width=2000, shadow_map_height=2000; // play with these parameters
+     unsigned int shadow_map_width=2000, shadow_map_height=2000; // play with these parameters
 
 	scaleAwareIntensity *= scaleAwareIntensity;
-	
-	LightSource l[3];
-	glm::vec3 positions[3] = {
-		normalize (glm::vec3 (0.f, 2.f, 2.f)),
-		normalize (glm::vec3 (-2.f, 0.f, 0.f)),
-		normalize (glm::vec3 (2.f, 0.f, 0.f)
-	};
-
-	for(int i = 0; i < 3; i++) {
-		l[i].setTranslation(center + positions[i] * meshScale * 3.f);
-	}
-	l0.setTranslation (center +  * meshScale * 3.f);
+	LightSource l0;
+	l0.setTranslation (center + normalize (glm::vec3 (0.f, 2.f, 2.f)) * meshScale * 3.f);
 	l0.setColor (glm::vec3 (1.f));
 	l0.setIntensity (scaleAwareIntensity);
 	l0.setShadowMapTex(0);
@@ -314,7 +304,7 @@ void initScene () {
 	lightSources.push_back (l0);
 	
 	LightSource l1;
-	l1.setTranslation (center +  * meshScale * 3.f);
+	l1.setTranslation (center + normalize (glm::vec3 (-2.f, 0.f, 0.f)) * meshScale * 3.f);
 	l1.setColor (glm::vec3 (0.f, 0.4f, 0.8f));
 	l1.setIntensity (scaleAwareIntensity);
 	l1.setShadowMapTex(1);
@@ -323,7 +313,7 @@ void initScene () {
 	lightSources.push_back (l1);
 
 	LightSource l2;
-	l2.setTranslation (center + ) * meshScale * 3.f);
+	l2.setTranslation (center + normalize (glm::vec3 (2.f, 0.f, 0.f)) * meshScale * 3.f);
 	l2.setColor (glm::vec3 (0.9f, 0.3f, 0.f));
 	l2.setIntensity (scaleAwareIntensity);
 	l2.setShadowMapTex(2);

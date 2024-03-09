@@ -22,7 +22,9 @@ public:
 	inline glm::mat4 getDepthMVP() const { return depthMVP ;}
 	void allocateShadowMapFbo(unsigned int w=800, unsigned int h=600){ m_shadowMap.allocate(w, h); }
     void bindShadowMap(){ m_shadowMap.bindFbo(); }
-	void setupCameraForShadowMapping(std::shared_ptr<ShaderProgram> shader_shadow_map_Ptr, std::shared_ptr<Camera> camera);
+	void setupCameraForShadowMapping(std::shared_ptr<ShaderProgram> shader_shadow_map_Ptr,
+    const glm::vec3 scene_center,
+	const float scene_radius);
 	FboShadowMap m_shadowMap;
 
 private:

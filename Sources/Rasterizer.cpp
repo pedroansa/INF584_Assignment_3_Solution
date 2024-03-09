@@ -122,12 +122,14 @@ void Draw(std::shared_ptr<ShaderProgram> shader, std::shared_ptr<Scene> scenePtr
 
 void LightSource::setupCameraForShadowMapping(
     std::shared_ptr<ShaderProgram> shader_shadow_map_Ptr,
-    std::shared_ptr<Camera> camera)
+    const glm::vec3 scene_center,
+	const float scene_radius)
   {
-    glm::mat4 lightProjection = camera->computeProjectionMatrix();
-    glm::mat4 lightView = camera->computeViewMatrix();
-    depthMVP = lightProjection * lightView;
-	shader_shadow_map_Ptr->set("depthMVP", depthMVP);
+	float near_plane = 0.1f, far_plane = 10.0f;
+	float s = 2.f * scene_radius;
+	glm::mat4 depthProjectionMatrix = glm::ortho(-s, s, -s, s, 0.1f, s); 
+    glm::mat4 depthViewMatrix = glm::lookAt(getTranslation(), scene_center, glm::vec3(0.0, 1.0, 0.0));  
+	shader_shadow_map_Ptr->set("depthMVP", depthProjectionMatrix * depthViewMatrix * glm::mat4(1.0f));
   }
 
 // The main rendering call
@@ -146,7 +148,7 @@ void Rasterizer::render (std::shared_ptr<Scene> scenePtr) {
 	for(size_t i = 0; i < scenePtr->lightSources().size(); ++i) {
       LightSource li = lightSources[i];
 	  
-      li.setupCameraForShadowMapping(m_shadowMapingShaderProgramPtr,  scenePtr->camera());
+      li.setupCameraForShadowMapping(m_shadowMapingShaderProgramPtr, glm::vec3(0), 1.f);
 	  li.bindShadowMap();
 
       // TODO: render the objects in the scene
