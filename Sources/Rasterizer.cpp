@@ -120,16 +120,16 @@ void Draw(std::shared_ptr<ShaderProgram> shader, std::shared_ptr<Scene> scenePtr
 
 }
 
-void LightSource::setupCameraForShadowMapping(
+glm::mat4 LightSource::getProjectionViewMatrix(
     std::shared_ptr<ShaderProgram> shader_shadow_map_Ptr,
     const glm::vec3 scene_center,
 	const float scene_radius)
   {
 	float near_plane = 0.1f, far_plane = 10.0f;
 	float s = 2.f * scene_radius;
-	glm::mat4 depthProjectionMatrix = glm::ortho(-s, s, -s, s, 0.1f, s); 
+	glm::mat4 depthProjectionMatrix = glm::ortho(s, -s, -s, s, 0.1f, s); 
     glm::mat4 depthViewMatrix = glm::lookAt(getTranslation(), scene_center, glm::vec3(0.0, 1.0, 0.0));  
-	shader_shadow_map_Ptr->set("depthMVP", depthProjectionMatrix * depthViewMatrix * glm::mat4(1.0f));
+	return depthProjectionMatrix * depthViewMatrix;
   }
 
 // The main rendering call
@@ -144,22 +144,21 @@ void Rasterizer::render (std::shared_ptr<Scene> scenePtr) {
 
 	m_shadowMapingShaderProgramPtr->use();
 
-	
+	std::vector<glm::mat4> lightMVP;
 	for(size_t i = 0; i < scenePtr->lightSources().size(); ++i) {
-      LightSource li = lightSources[i];
-	  
-      li.setupCameraForShadowMapping(m_shadowMapingShaderProgramPtr, glm::vec3(0), 1.f);
-	  li.bindShadowMap();
+		LightSource li = lightSources[i];
+		lightMVP.push_back(li.getProjectionViewMatrix(m_shadowMapingShaderProgramPtr, glm::vec3(0.f), 3.f));
+		m_shadowMapingShaderProgramPtr->set("depthMVP", lightMVP.back());
+		li.bindShadowMap();
 
-      // TODO: render the objects in the scene
-      m_shadowMapingShaderProgramPtr->set("model", glm::mat4(1.0f));
-      draw (0, scenePtr->mesh (0)->triangleIndices().size ());
-	  if(saveShadowMapsPpm) {
-		std::cout << "Saving Shadow Map for Light " << i << std::endl;
-        li.m_shadowMap.savePpmFile(std::string("shadom_map_")+std::to_string(i)+std::string(".ppm"));
-      }
-	  
-    }
+		// TODO: render the objects in the scene
+		m_shadowMapingShaderProgramPtr->set("model", glm::scale(glm::mat4(1.0f), glm::vec3(scenePtr->mesh(0)->getScale())));
+		draw (0, scenePtr->mesh (0)->triangleIndices().size ());
+		if(saveShadowMapsPpm) {
+			std::cout << "Saving Shadow Map for Light " << i << std::endl;
+			li.m_shadowMap.savePpmFile(std::string("shadom_map_")+std::to_string(i)+std::string(".ppm"));
+		}
+	}
 	saveShadowMapsPpm = false;
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -178,8 +177,11 @@ void Rasterizer::render (std::shared_ptr<Scene> scenePtr) {
 		m_pbrShaderProgramPtr->set (lstring + ".position", li.getTranslation ());
 		m_pbrShaderProgramPtr->set (lstring + ".color", li.getColor ());
 		m_pbrShaderProgramPtr->set (lstring + ".intensity", li.getIntensity ());
-		m_pbrShaderProgramPtr->set(std::string("shadowMap") + std::to_string(i), li.getShadowMapTex());
-      	m_pbrShaderProgramPtr->set(std::string("shadowMVP[") + std::to_string(i) + std::string("]"), li.getDepthMVP());
+
+		glActiveTexture(GL_TEXTURE0 + li.getShadowMapTex());
+		glBindTexture(GL_TEXTURE_2D, li.m_shadowMap.getTextureId());
+		m_pbrShaderProgramPtr->set(std::string("shadowMap[") + std::to_string(i) + std::string("]"), li.getShadowMapTex());
+      	m_pbrShaderProgramPtr->set(std::string("shadowMVP[") + std::to_string(i) + std::string("]"), lightMVP[i]);
 	}
 	
 	glm::mat4 viewMatrix = scenePtr->camera()->computeViewMatrix ();
@@ -203,7 +205,6 @@ void Rasterizer::render (std::shared_ptr<Scene> scenePtr) {
 		m_pbrShaderProgramPtr->set ("material.roughness", scenePtr->mesh (i)->material ().getRoughness());
 		m_pbrShaderProgramPtr->set ("material.metallicness", scenePtr->mesh (i)->material ().getMetallicness());
 		float aux = (1.0 - scenePtr->mesh (i)->material ().getMetallicness());
-		//printVec4(aux  * scenePtr->mesh (i)->material ().getAlbedo());
 		
 		draw (i, scenePtr->mesh (i)->triangleIndices().size ());
 

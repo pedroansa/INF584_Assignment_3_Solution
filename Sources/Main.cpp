@@ -279,7 +279,7 @@ void initScene () {
 	auto squareMeshPtr = std::make_shared<Mesh>();
     MeshLoader::loadSquare(squareMeshPtr);
 
-	 glm::vec3 squareTranslation = glm::vec3(0.0f, 0.0f, -0.5f);
+	glm::vec3 squareTranslation = glm::vec3(0.0f, 0.0f, -0.5f);
     squareMeshPtr->setTranslation(squareTranslation);
 
     // Rotate the square mesh slightly
@@ -291,35 +291,32 @@ void initScene () {
 	// Lights
 	auto & lightSources = scenePtr->lightSources();
 	float scaleAwareIntensity = meshScale * 6.f;
-     unsigned int shadow_map_width=2000, shadow_map_height=2000; // play with these parameters
-
 	scaleAwareIntensity *= scaleAwareIntensity;
-	LightSource l0;
-	l0.setTranslation (center + normalize (glm::vec3 (0.f, 2.f, 2.f)) * meshScale * 3.f);
-	l0.setColor (glm::vec3 (1.f));
-	l0.setIntensity (scaleAwareIntensity);
-	l0.setShadowMapTex(0);
-	glActiveTexture(GL_TEXTURE0 + l0.getShadowMapTex());
-	l0.allocateShadowMapFbo(shadow_map_width, shadow_map_height);
-	lightSources.push_back (l0);
-	
-	LightSource l1;
-	l1.setTranslation (center + normalize (glm::vec3 (-2.f, 0.f, 0.f)) * meshScale * 3.f);
-	l1.setColor (glm::vec3 (0.f, 0.4f, 0.8f));
-	l1.setIntensity (scaleAwareIntensity);
-	l1.setShadowMapTex(1);
-	glActiveTexture(GL_TEXTURE0 + l1.getShadowMapTex());
-	l1.allocateShadowMapFbo(shadow_map_width, shadow_map_height);
-	lightSources.push_back (l1);
+    
+	const unsigned int shadow_map_width = 2000, shadow_map_height = 2000; // play with these parameters
 
-	LightSource l2;
-	l2.setTranslation (center + normalize (glm::vec3 (2.f, 0.f, 0.f)) * meshScale * 3.f);
-	l2.setColor (glm::vec3 (0.9f, 0.3f, 0.f));
-	l2.setIntensity (scaleAwareIntensity);
-	l2.setShadowMapTex(2);
-	glActiveTexture(GL_TEXTURE0 + l2.getShadowMapTex());
-	l2.allocateShadowMapFbo(shadow_map_width, shadow_map_height);
-	lightSources.push_back (l2);
+	glm::vec3 positions[3] = {
+		normalize (glm::vec3 (0.f, 2.f, 2.f)),
+		normalize (glm::vec3 (-2.f, 0.f, 0.f)),
+		normalize (glm::vec3 (2.f, 0.f, 0.f))
+	};
+	glm::vec3 colors[3] = {
+		glm::vec3 (1.f),
+		glm::vec3 (0.f, 0.4f, 0.8f),
+		glm::vec3 (0.9f, 0.3f, 0.f)
+	};
+
+	lightSources.reserve(3);
+	for(int i = 0; i < 3; i++) {
+		lightSources.emplace_back();
+		LightSource& light = lightSources.back();
+		light.setTranslation(center + positions[i] * meshScale * 3.f);
+		light.setColor(colors[i]);
+		light.setIntensity(scaleAwareIntensity);
+		light.setShadowMapTex(i);
+		glActiveTexture(GL_TEXTURE0 + light.getShadowMapTex());
+		light.allocateShadowMapFbo(shadow_map_width, shadow_map_height);
+	}
 	
 
 	// Camera

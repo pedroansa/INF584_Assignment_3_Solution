@@ -3,6 +3,7 @@
 #include <glad/glad.h>
 #include <fstream>
 #include <iostream>
+#include <sstream>
 
 class FboShadowMap {
 public:
@@ -53,6 +54,7 @@ public:
   void savePpmFile(std::string const &filename)
   {
     std::ofstream output_image(filename.c_str());
+	std::stringstream sstr;
 
     // READ THE PIXELS VALUES from FBO AND SAVE TO A .PPM FILE
     int i, j, k;
@@ -69,15 +71,14 @@ public:
     k = 0;
     for(i=0; i<_depthMapTextureWidth; ++i) {
       for(j=0; j<_depthMapTextureHeight; ++j) {
-        output_image <<
-          static_cast<unsigned int>(255*pixels[k]) << " " <<
-          static_cast<unsigned int>(255*pixels[k]) << " " <<
-          static_cast<unsigned int>(255*pixels[k]) << " ";
+		unsigned int grey = static_cast<unsigned int>(255*pixels[k]);
+        sstr << grey << " " << grey << " " << grey << std::endl;
         k = k+1;
       }
-      output_image << std::endl;
+      sstr << std::endl;
     }
     delete [] pixels;
+	output_image << sstr.str();
     output_image.close();
   }
 

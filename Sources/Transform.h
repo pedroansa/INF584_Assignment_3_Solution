@@ -35,6 +35,7 @@ public:
 	}
 
 private:
+
 	glm::vec3 m_translation;
 	glm::vec3 m_rotation;
 	float m_scale;

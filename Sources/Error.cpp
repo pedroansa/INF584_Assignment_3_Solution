@@ -35,8 +35,8 @@ void debugMessageCallback (GLenum source,
     					   GLsizei length,
     					   const GLchar* message,
     					   const void* userParam) {
-	/*
-	std::string sourceString ("Unknown");
+	
+	/* std::string sourceString ("Unknown");
 	if (source == GL_DEBUG_SOURCE_API) 
 		sourceString = "API";
 	else if (source  == GL_DEBUG_SOURCE_WINDOW_SYSTEM)
@@ -95,8 +95,8 @@ void debugMessageCallback (GLenum source,
 	} 
 	
 	if (type == GL_DEBUG_TYPE_ERROR) 
-		std::exit (EXIT_FAILURE);
-	*/
+		std::exit (EXIT_FAILURE); */
+	
 }
 
 void exitOnCriticalError (const std::string & message) {

@@ -13,8 +13,8 @@ out vec4 lightsPos[3];
 
 void main() {
 
-    for(int i=0; i < 3; i++){
-        lightsPos[i] = shadowMVP[i]*modelMat*vec4(vPosition, 1.0);
+    for(int i=0; i < 3; i++) {
+        lightsPos[i] = shadowMVP[i] * modelMat * vec4(vPosition, 1.0);
     }
     
 	vec4 p = modelViewMat * vec4 (vPosition, 1.0);
