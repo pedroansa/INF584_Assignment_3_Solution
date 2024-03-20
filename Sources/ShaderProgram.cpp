@@ -63,6 +63,17 @@ std::shared_ptr<ShaderProgram> ShaderProgram::genBasicShaderProgram (const std::
 	return shaderProgramPtr;
 }
 
+// Compute Shader
+std::shared_ptr<ShaderProgram> ShaderProgram::genBasicShaderProgram (const std::string & computeShaderFilename) {
+	std::string shaderProgramName =  "Shader Program <" + computeShaderFilename + ">";
+	std::shared_ptr<ShaderProgram> shaderProgramPtr = std::make_shared<ShaderProgram> (shaderProgramName);
+    shaderProgramPtr->loadShader (GL_COMPUTE_SHADER, computeShaderFilename);
+    shaderProgramPtr->link ();
+
+	
+	return shaderProgramPtr;
+}
+
 std::string ShaderProgram::file2String (const std::string & filename) {
 	std::ifstream input (filename.c_str ());
 	if (!input)

@@ -15,6 +15,8 @@
 bool saveShadowMapsPpm = true;
 
 void Rasterizer::init (const std::string & basePath, const std::shared_ptr<Scene> scenePtr) {
+	loadShaderProgram (basePath);
+
 	glCullFace (GL_BACK);     // Specifies the faces to cull (here the ones pointing away from the camera)
 	glEnable (GL_CULL_FACE); // Enables face culling (based on the orientation defined by the CW/CCW enumeration).
 	glDepthFunc (GL_LESS); // Specify the depth test for the z-buffer
@@ -24,7 +26,6 @@ void Rasterizer::init (const std::string & basePath, const std::shared_ptr<Scene
 	// GPU resources
 	initScreeQuad ();
 
-	loadShaderProgram (basePath);
 	initDisplayedImage ();
 	// Allocate GPU ressources for the heavy data components of the scene 
 	size_t numOfMeshes = scenePtr->numOfMeshes ();
@@ -62,6 +63,15 @@ void Rasterizer::loadShaderProgram (const std::string & basePath) {
 		std::string shaderPath = basePath + "/" + SHADER_PATH;
 		m_shadowMapingShaderProgramPtr = ShaderProgram::genBasicShaderProgram (shaderPath + "/ShadowMappingVertexShader.glsl",
 													         	 		  shaderPath + "/ShadowMappingFragmentShader.glsl");
+		//m_displayShaderProgramPtr->set ("imageTex", 0);
+	} catch (std::exception & e) {
+		exitOnCriticalError (std::string ("[Error loading display shader program]") + e.what ());
+	}
+
+	m_SATShaderProgramPtr.reset ();
+	try {
+		std::string shaderPath = basePath + "/" + SHADER_PATH;
+		m_SATShaderProgramPtr = ShaderProgram::genBasicShaderProgram (shaderPath + "/SATComputeShader.glsl");
 		//m_displayShaderProgramPtr->set ("imageTex", 0);
 	} catch (std::exception & e) {
 		exitOnCriticalError (std::string ("[Error loading display shader program]") + e.what ());
@@ -154,10 +164,10 @@ void Rasterizer::render (std::shared_ptr<Scene> scenePtr) {
 		// TODO: render the objects in the scene
 		m_shadowMapingShaderProgramPtr->set("model", glm::scale(glm::mat4(1.0f), glm::vec3(scenePtr->mesh(0)->getScale())));
 		draw (0, scenePtr->mesh (0)->triangleIndices().size ());
-		if(saveShadowMapsPpm) {
-			std::cout << "Saving Shadow Map for Light " << i << std::endl;
-			li.m_shadowMap.savePpmFile(std::string("shadom_map_")+std::to_string(i)+std::string(".ppm"));
-		}
+		// if(saveShadowMapsPpm) {
+		// 	std::cout << "Saving Shadow Map for Light " << i << std::endl;
+		// 	li.m_shadowMap.savePpmFile(std::string("shadom_map_")+std::to_string(i)+std::string(".ppm"));
+		// }
 	}
 	saveShadowMapsPpm = false;
 

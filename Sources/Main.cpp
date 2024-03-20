@@ -281,6 +281,7 @@ void initScene () {
 
 	glm::vec3 squareTranslation = glm::vec3(0.0f, 0.0f, -0.5f);
     squareMeshPtr->setTranslation(squareTranslation);
+	
 
     // Rotate the square mesh slightly
     // glm::vec3 squareRotation = glm::vec3(0.1f, 0.0f, 0.0f); // Rotate around x-axis by 0.1 radians
@@ -288,13 +289,30 @@ void initScene () {
 
     scenePtr->add(squareMeshPtr);
 
+	// Existing wall setup (behind the mesh)
+	auto behindWallMeshPtr = squareMeshPtr; // Reuse the mesh you already loaded and configured
+
+	// Left wall
+	auto leftWallMeshPtr = std::make_shared<Mesh>();
+	MeshLoader::loadSquare(leftWallMeshPtr);
+	glm::vec3 leftWallTranslation = glm::vec3(-0.5f, 0.0f, -1.0f); 
+	leftWallMeshPtr->setTranslation(leftWallTranslation);
+	leftWallMeshPtr->setRotation(glm::vec3(0.0f, glm::half_pi<float>(), 0.0f)); 
+	scenePtr->add(leftWallMeshPtr);
+
+	// Right wall
+	auto rightWallMeshPtr = std::make_shared<Mesh>();
+	MeshLoader::loadSquare(rightWallMeshPtr);
+	glm::vec3 rightWallTranslation = glm::vec3(0.5f, 0.0f, -1.0f); 
+	rightWallMeshPtr->setTranslation(rightWallTranslation);
+	rightWallMeshPtr->setRotation(glm::vec3(0.0f, -glm::half_pi<float>(), 0.0f)); 
+	scenePtr->add(rightWallMeshPtr);
+
 	// Lights
 	auto & lightSources = scenePtr->lightSources();
 	float scaleAwareIntensity = meshScale * 6.f;
 	scaleAwareIntensity *= scaleAwareIntensity;
     
-	const unsigned int shadow_map_width = 2000, shadow_map_height = 2000; // play with these parameters
-
 	glm::vec3 positions[3] = {
 		normalize (glm::vec3 (0.f, 2.f, 2.f)),
 		normalize (glm::vec3 (-2.f, 0.f, 0.f)),
@@ -306,8 +324,11 @@ void initScene () {
 		glm::vec3 (0.9f, 0.3f, 0.f)
 	};
 
-	lightSources.reserve(3);
-	for(int i = 0; i < 3; i++) {
+	const unsigned int shadow_map_width = 1024, shadow_map_height = 1024; 
+
+	lightSources.reserve(1);
+	// Here we also initialize the shadow map
+	for(int i = 0; i < 1; i++) { // Chance to thrre to add the other lights
 		lightSources.emplace_back();
 		LightSource& light = lightSources.back();
 		light.setTranslation(center + positions[i] * meshScale * 3.f);
@@ -336,6 +357,7 @@ void init () {
 	initGLFW (); // Windowing system
 	if (!gladLoadGLLoader ((GLADloadproc)glfwGetProcAddress)) // Load extensions for modern OpenGL
 		exitOnCriticalError ("[Failed to initialize OpenGL context]");
+		
 	initScene (); // Actual scene to render
 	rasterizerPtr = make_shared<Rasterizer> ();
 	rasterizerPtr->init (basePath, scenePtr); // Mut be called before creating the scene, to generate an OpenGL context and allow mesh VBOs

@@ -17,6 +17,7 @@ struct Material {
 
 //ShadowMAP PART
 uniform sampler2D shadowMap[3];
+uniform sampler2D SATMap;
 
 uniform mat4 viewMat;
 uniform int numOfLightSources;
@@ -36,6 +37,21 @@ bool isShadowed(vec4 fragPosLightSpace, sampler2D shadowmap) {
     float closestDepth = texture(shadowmap, projCoords.xy).r;
     float currentDepth = projCoords.z - 0.05;
     return currentDepth > closestDepth;
+}
+
+float chebyshevUpperBound(vec4 fragPosLightSpace, sampler2D shadowMap) {
+    vec3 projCoords = fragPosLightSpace.xyz / fragPosLightSpace.w;
+    projCoords = projCoords * 0.5 + 0.5; // Transformar para espaço de textura
+    vec2 moments = texture(shadowMap, projCoords.xy).rg;
+
+    float depth = projCoords.z;
+    float variance = moments.y - moments.x * moments.x;
+    variance = max(variance, 0.00002); // Evitar variância negativa devido a erros de precisão
+
+    float d = depth - moments.x;
+    float pMax = variance / (variance + d * d); // Chebyshev's inequality
+
+    return pMax;
 }
 
 vec3 toneMap (vec3 radiance, float exposure, float gamma) {
@@ -90,27 +106,24 @@ vec3 microfacetBRDF(Material m, vec3 n, vec3 v, vec3 l)
     return D*V*F;
 }
 
-void main () {
-	vec3 radiance = vec3 (0.0);
-	vec3 n = normalize (fNormal);
-	vec3 wo = normalize (-fPosition);
-	float c[3];
-	for (int i = 0; i < min (MAX_NUM_OF_LIGHT_SOURCES, numOfLightSources); ++i) {
-		c[i] = 0.f;// texture(shadowMap[i], 0.5, 0.).r;
-		if(isShadowed(lightsPos[i], shadowMap[i]))
-			continue;
-		LightSource l = lightSourceSet[i];
-		vec3 lightPosition = vec3 (viewMat * vec4 (l.position, 1.0));
-		vec3 wi = normalize (lightPosition - fPosition);
-		vec3 li = attenuation (l, lightPosition, fPosition);
-		vec3 fd = diffuseBRDF (material);
-		vec3 fs = microfacetBRDF (material, n, wo, wi);
-		vec3 fr = fd+fs;
-		float nDotL = max (0.0, dot( n, wi));
-		radiance += li * fr * nDotL;
-		radiance += 0.1;
-	}
-	//radiance = toneMap (radiance, 1.0, 1.0);
-	//colorResponse = vec4 (c[0], c[1], c[2], 1.0);
-	colorResponse = vec4(radiance, 1.0);
+void main() {
+    vec3 radiance = vec3(0.0);
+    vec3 n = normalize(fNormal);
+    vec3 wo = normalize(-fPosition);
+
+    for (int i = 0; i < min(MAX_NUM_OF_LIGHT_SOURCES, numOfLightSources); ++i) {
+        if(chebyshevUpperBound(lightsPos[i], shadowMap[i]) < 0.00005) // Exemplo de uso
+            continue;
+
+        LightSource l = lightSourceSet[i];
+        vec3 lightPosition = vec3(viewMat * vec4(l.position, 1.0));
+        vec3 wi = normalize(lightPosition - fPosition);
+        vec3 li = attenuation(l, lightPosition, fPosition);
+        vec3 fd = diffuseBRDF(material);
+        vec3 fs = microfacetBRDF(material, n, wo, wi);
+        vec3 fr = fd + fs;
+        float nDotL = max(0.0, dot(n, wi));
+        radiance += li * fr * nDotL;
+    }
+    colorResponse = vec4(radiance, 1.0);
 }
