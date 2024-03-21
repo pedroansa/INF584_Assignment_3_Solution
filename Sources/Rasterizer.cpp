@@ -72,6 +72,10 @@ void Rasterizer::loadShaderProgram (const std::string & basePath) {
 	try {
 		std::string shaderPath = basePath + "/" + SHADER_PATH;
 		m_SATShaderProgramPtr = ShaderProgram::genBasicShaderProgram (shaderPath + "/SATComputeShader.glsl");
+		m_SATShaderProgramPtr->use();
+		m_SATShaderProgramPtr->set("input_image", 0);
+		m_SATShaderProgramPtr->set("output_image", 0);
+	
 		//m_displayShaderProgramPtr->set ("imageTex", 0);
 	} catch (std::exception & e) {
 		exitOnCriticalError (std::string ("[Error loading display shader program]") + e.what ());
@@ -171,10 +175,30 @@ void Rasterizer::render (std::shared_ptr<Scene> scenePtr) {
 	}
 	saveShadowMapsPpm = false;
 
+	glCullFace(GL_BACK);
+
+	m_shadowMapingShaderProgramPtr->use();
+
+	std::cout << "CARAI" << std::endl;
+	// This is breaking the code
+	
+	// for(int i = 0; i < 1; i++) { // Chance to thrre to add the other lights
+	// 	LightSource li = lightSources[i];
+	// 	glBindImageTexture(0, li.getShadowMapTex(), 0, GL_FALSE, 0, GL_READ_ONLY, GL_RG32F);
+	// 	glBindImageTexture(1, li.m_shadowMap.getVarianceFBO(0), 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RG32F);
+	// 	glDispatchCompute(li.m_shadowMap.getTextureWidth(), 1, 1);
+	// 	glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+	// 	glBindImageTexture(0, li.m_shadowMap.getVarianceFBO(0), 0, GL_FALSE, 0, GL_READ_ONLY, GL_RG32F);
+	// 	glBindImageTexture(1, li.m_shadowMap.getVarianceFBO(1), 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RG32F);
+	// 	glDispatchCompute(li.m_shadowMap.getTextureWidth(), 1, 1);
+	// 	glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+		
+	// }
+
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	glEnable(GL_DEPTH_TEST);
     glViewport(0, 0, 1024, 768);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // Erase the color and z buffers.
-    glCullFace(GL_BACK);
 
 
 	// const glm::vec3 & bgColor = scenePtr->backgroundColor ();
