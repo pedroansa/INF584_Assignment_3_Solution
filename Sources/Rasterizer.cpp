@@ -154,10 +154,10 @@ void Rasterizer::render (std::shared_ptr<Scene> scenePtr) {
 		// TODO: render the objects in the scene
 		m_shadowMapingShaderProgramPtr->set("model", glm::scale(glm::mat4(1.0f), glm::vec3(scenePtr->mesh(0)->getScale())));
 		draw (0, scenePtr->mesh (0)->triangleIndices().size ());
-		if(saveShadowMapsPpm) {
-			std::cout << "Saving Shadow Map for Light " << i << std::endl;
-			li.m_shadowMap.savePpmFile(std::string("shadom_map_")+std::to_string(i)+std::string(".ppm"));
-		}
+		// if(saveShadowMapsPpm) {
+		// 	std::cout << "Saving Shadow Map for Light " << i << std::endl;
+		// 	li.m_shadowMap.savePpmFile(std::string("shadom_map_")+std::to_string(i)+std::string(".ppm"));
+		// }
 	}
 	saveShadowMapsPpm = false;
 
