@@ -140,7 +140,7 @@ void Rasterizer::render (std::shared_ptr<Scene> scenePtr) {
 	glEnable(GL_DEPTH_TEST);
 	
 	glEnable(GL_CULL_FACE);
-	glCullFace(GL_FRONT);
+	glCullFace(GL_BACK);
 
 	m_shadowMapingShaderProgramPtr->use();
 

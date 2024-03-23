@@ -1,9 +1,9 @@
-#version 410 core            // minimal GL version support expected from the GPU
+#version 410 core
 
-// output data
-layout(location = 0) out float fragmentDepth;
+layout(location = 0) out vec4 fragmentColor;
 
-void main(){
-  // not really needed, OpenGL does it anyway
-  fragmentDepth = gl_FragCoord.z;
+void main() {
+    float depth = gl_FragCoord.z;
+    // Store the depth and its square
+    fragmentColor = vec4(depth, depth * depth, 0.0, 0.0);
 }

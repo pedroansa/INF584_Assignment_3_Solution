@@ -62,6 +62,28 @@ float shadowPCF(sampler2D shadowMap, vec4 fragPosLightSpace, float shadowBias, v
     return shadow;
 }
 
+float VSMShadowCalculation(sampler2D shadowMap, vec4 fragPosLightSpace) {
+    vec3 projCoords = fragPosLightSpace.xyz / fragPosLightSpace.w;
+    projCoords = projCoords * 0.5 + 0.5;
+    
+    if(projCoords.z > 1.0) return 1.0; // Object is outside of the light's frustum.
+
+    vec2 moments = texture(shadowMap, projCoords.xy).rg;
+    float depth = projCoords.z;
+    float bias = 0.005; // Consider adjusting this based on your scene.
+
+    float variance = moments.y - (moments.x * moments.x);
+    variance = max(variance, 0.00002); // Ensures a minimum variance to avoid division by zero.
+
+    float d = depth - bias - moments.x;
+    float pMax = variance / (variance + d * d);
+
+    float lightBleedReduction = 0.2; // Adjust this to balance between soft shadows and light bleed.
+    pMax = mix(pMax, 1.0, lightBleedReduction);
+
+    return pMax;
+}
+
 
 vec3 toneMap (vec3 radiance, float exposure, float gamma) {
 	vec3 rgb = exposure * radiance;
@@ -121,14 +143,14 @@ void main () {
 	vec3 wo = normalize (-fPosition);
 	float c[3];
 
-    float shadowBias = 0.005;
+    float shadowBias = 0.5;
     vec2 texelSize = vec2(1); // Adjust based on your shadow map resolution
     int filterSize = 3; // Increase for softer shadows
 
     // Replace the shadow calculation with:
     float shadow = 0.0;
 
-	for (int i = 0; i < min (MAX_NUM_OF_LIGHT_SOURCES, numOfLightSources); ++i) {
+	for (int i = 0; i < min (1, numOfLightSources); ++i) {
 		c[i] = 0.f;// texture(shadowMap[i], 0.5, 0.).r;
 			
 		LightSource l = lightSourceSet[i];
@@ -139,11 +161,9 @@ void main () {
 		vec3 fs = microfacetBRDF (material, n, wo, wi);
 		vec3 fr = fd+fs;
 		float nDotL = max (0.0, dot( n, wi));
-
-        shadow += shadowPCF(shadowMap[i], lightsPos[i], shadowBias, texelSize, filterSize);
-
-		radiance += (1.0 - shadow) * li * fr * nDotL;
-		//radiance += 0.1;
+        
+        float shadowFactor = shadowPCF(shadowMap[i], lightsPos[i], shadowBias, texelSize, filterSize);
+        radiance += (shadowFactor) * li * fr * nDotL;
 	}
 	//radiance = toneMap (radiance, 1.0, 1.0);
 	//colorResponse = vec4 (c[0], c[1], c[2], 1.0);
