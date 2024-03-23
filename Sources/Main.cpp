@@ -290,21 +290,21 @@ void initScene () {
 	
 	auto behindWallMeshPtr = squareMeshPtr; // Reuse the mesh you already loaded and configured
 
-	// Left wall
-	auto leftWallMeshPtr = std::make_shared<Mesh>();
-	MeshLoader::loadSquare(leftWallMeshPtr);
-	glm::vec3 leftWallTranslation = glm::vec3(-0.5f, 0.0f, -1.0f); 
-	leftWallMeshPtr->setTranslation(leftWallTranslation);
-	leftWallMeshPtr->setRotation(glm::vec3(0.0f, glm::half_pi<float>(), 0.0f)); 
-	scenePtr->add(leftWallMeshPtr);
+	// // Left wall
+	// auto leftWallMeshPtr = std::make_shared<Mesh>();
+	// MeshLoader::loadSquare(leftWallMeshPtr);
+	// glm::vec3 leftWallTranslation = glm::vec3(-0.5f, 0.0f, -1.0f); 
+	// leftWallMeshPtr->setTranslation(leftWallTranslation);
+	// leftWallMeshPtr->setRotation(glm::vec3(0.0f, glm::half_pi<float>(), 0.0f)); 
+	// scenePtr->add(leftWallMeshPtr);
 
-	// Right wall
-	auto rightWallMeshPtr = std::make_shared<Mesh>();
-	MeshLoader::loadSquare(rightWallMeshPtr);
-	glm::vec3 rightWallTranslation = glm::vec3(0.5f, 0.0f, -1.0f); 
-	rightWallMeshPtr->setTranslation(rightWallTranslation);
-	rightWallMeshPtr->setRotation(glm::vec3(0.0f, -glm::half_pi<float>(), 0.0f)); 
-	scenePtr->add(rightWallMeshPtr);
+	// // Right wall
+	// auto rightWallMeshPtr = std::make_shared<Mesh>();
+	// MeshLoader::loadSquare(rightWallMeshPtr);
+	// glm::vec3 rightWallTranslation = glm::vec3(0.5f, 0.0f, -1.0f); 
+	// rightWallMeshPtr->setTranslation(rightWallTranslation);
+	// rightWallMeshPtr->setRotation(glm::vec3(0.0f, -glm::half_pi<float>(), 0.0f)); 
+	// scenePtr->add(rightWallMeshPtr);
 
 	// Lights
 	auto & lightSources = scenePtr->lightSources();

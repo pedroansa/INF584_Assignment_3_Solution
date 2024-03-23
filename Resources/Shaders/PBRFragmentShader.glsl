@@ -65,20 +65,17 @@ float shadowPCF(sampler2D shadowMap, vec4 fragPosLightSpace, float shadowBias, v
 float VSMShadowCalculation(sampler2D shadowMap, vec4 fragPosLightSpace) {
     vec3 projCoords = fragPosLightSpace.xyz / fragPosLightSpace.w;
     projCoords = projCoords * 0.5 + 0.5;
-    
-    if(projCoords.z > 1.0) return 1.0; // Object is outside of the light's frustum.
 
     vec2 moments = texture(shadowMap, projCoords.xy).rg;
     float depth = projCoords.z;
-    float bias = 0.005; // Consider adjusting this based on your scene.
-
+    float bias = 0.5; // Consider adjusting this based on your scene.
     float variance = moments.y - (moments.x * moments.x);
-    variance = max(variance, 0.00002); // Ensures a minimum variance to avoid division by zero.
+    variance = max(variance, 0.2); // Ensures a minimum variance to avoid division by zero.
 
-    float d = depth - bias - moments.x;
+    float d = depth + bias - moments.x;
     float pMax = variance / (variance + d * d);
 
-    float lightBleedReduction = 0.2; // Adjust this to balance between soft shadows and light bleed.
+    float lightBleedReduction = 0.2; 
     pMax = mix(pMax, 1.0, lightBleedReduction);
 
     return pMax;
@@ -159,11 +156,15 @@ void main () {
 		vec3 li = attenuation (l, lightPosition, fPosition);
 		vec3 fd = diffuseBRDF (material);
 		vec3 fs = microfacetBRDF (material, n, wo, wi);
+        float shadowFactor = VSMShadowCalculation(shadowMap[i], lightsPos[i]);
+    
 		vec3 fr = fd+fs;
+        if(shadowFactor > 0.6){
+            fr = fd;
+        }
 		float nDotL = max (0.0, dot( n, wi));
         
-        float shadowFactor = shadowPCF(shadowMap[i], lightsPos[i], shadowBias, texelSize, filterSize);
-        radiance += (shadowFactor) * li * fr * nDotL;
+        radiance += (1-shadowFactor) * li * fr * nDotL;
 	}
 	//radiance = toneMap (radiance, 1.0, 1.0);
 	//colorResponse = vec4 (c[0], c[1], c[2], 1.0);
