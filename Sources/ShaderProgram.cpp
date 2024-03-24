@@ -100,7 +100,7 @@ std::shared_ptr<ShaderProgram> ShaderProgram::genBasicShaderProgram (const std::
 	std::shared_ptr<ShaderProgram> shaderProgramPtr = std::make_shared<ShaderProgram> (shaderProgramName);
     
 	shaderProgramPtr->loadShader (GL_COMPUTE_SHADER, ShaderFilename);
-    //shaderProgramPtr->link ();
+    shaderProgramPtr->link ();
     
 
     return shaderProgramPtr;

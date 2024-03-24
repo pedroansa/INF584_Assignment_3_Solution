@@ -159,7 +159,7 @@ void main () {
         float shadowFactor = VSMShadowCalculation(shadowMap[i], lightsPos[i]);
     
 		vec3 fr = fd+fs;
-        if(shadowFactor < 0.2){
+        if(shadowFactor >= 0.2){
             fr = fd;
         }
 		float nDotL = max (0.0, dot( n, wi));

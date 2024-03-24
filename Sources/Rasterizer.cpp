@@ -226,8 +226,14 @@ void Rasterizer::render (std::shared_ptr<Scene> scenePtr) {
 	for (size_t i = 0; i < 1; ++i) {
 		const auto & li = lightSources[i];
 		
-		//glBindImageTexture(0,li.m_shadowMap.getTextureId(), 0, GL_FALSE, 0, GL_READ_ONLY, GL_RG32F);
-
+		glBindImageTexture(0,li.m_shadowMap.getTextureId(), 0, GL_FALSE, 0, GL_READ_ONLY, GL_RG32F);
+		glBindImageTexture(1, li.m_shadowMap.getVarianceShadowTextureId(0), 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RG32F);
+		glDispatchCompute(2000, 1, 1);
+		glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+		glBindImageTexture(0, li.m_shadowMap.getVarianceShadowTextureId(0), 0, GL_FALSE, 0, GL_READ_ONLY, GL_RG32F);
+		glBindImageTexture(1, li.m_shadowMap.getVarianceShadowTextureId(1), 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RG32F);
+		glDispatchCompute(2000, 1, 1);
+		glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
 
 
 	}
