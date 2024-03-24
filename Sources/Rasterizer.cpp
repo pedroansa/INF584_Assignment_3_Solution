@@ -31,6 +31,10 @@ void Rasterizer::init (const std::string & basePath, const std::shared_ptr<Scene
 	for (size_t i = 0; i < numOfMeshes; i++) 
 		m_vaos.push_back (toGPU (scenePtr->mesh (i)));
 
+	m_SATShaderProgramPtr->set("input_image", 0);
+	m_SATShaderProgramPtr->set("output_image", 1);
+	
+
 
 }
 
@@ -63,6 +67,14 @@ void Rasterizer::loadShaderProgram (const std::string & basePath) {
 		m_shadowMapingShaderProgramPtr = ShaderProgram::genBasicShaderProgram (shaderPath + "/ShadowMappingVertexShader.glsl",
 													         	 		  shaderPath + "/ShadowMappingFragmentShader.glsl");
 		//m_displayShaderProgramPtr->set ("imageTex", 0);
+	} catch (std::exception & e) {
+		exitOnCriticalError (std::string ("[Error loading display shader program]") + e.what ());
+	}
+
+	m_SATShaderProgramPtr.reset ();
+	try {
+		std::string shaderPath = basePath + "/" + SHADER_PATH;
+		m_SATShaderProgramPtr = ShaderProgram::genBasicShaderProgram (shaderPath + "/SATShader.glsl");
 	} catch (std::exception & e) {
 		exitOnCriticalError (std::string ("[Error loading display shader program]") + e.what ());
 	}
@@ -138,12 +150,10 @@ void Rasterizer::render (std::shared_ptr<Scene> scenePtr) {
 	int numOfLightSources = std::min (8, int (lightSources.size ()));
 
 	glEnable(GL_DEPTH_TEST);
-	
-	glEnable(GL_CULL_FACE);
 	glCullFace(GL_BACK);
 
 	m_shadowMapingShaderProgramPtr->use();
-
+	glCullFace(GL_FRONT);
 	std::vector<glm::mat4> lightMVP;
 	for(size_t i = 0; i < scenePtr->lightSources().size(); ++i) {
 		LightSource li = lightSources[i];
@@ -159,6 +169,7 @@ void Rasterizer::render (std::shared_ptr<Scene> scenePtr) {
 		// 	li.m_shadowMap.savePpmFile(std::string("shadom_map_")+std::to_string(i)+std::string(".ppm"));
 		// }
 	}
+	glCullFace(GL_BACK);
 	saveShadowMapsPpm = false;
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -210,6 +221,25 @@ void Rasterizer::render (std::shared_ptr<Scene> scenePtr) {
 
 	}
 	m_pbrShaderProgramPtr->stop ();
+	m_SATShaderProgramPtr->use();
+
+	for (size_t i = 0; i < 1; ++i) {
+		const auto & li = lightSources[i];
+		
+		//glBindImageTexture(0,li.m_shadowMap.getTextureId(), 0, GL_FALSE, 0, GL_READ_ONLY, GL_RG32F);
+
+
+
+	}
+	m_SATShaderProgramPtr->stop();
+	// glBindImageTexture(0, depthMap, 0, GL_FALSE, 0, GL_READ_ONLY, GL_RG32F);
+	// glBindImageTexture(1, varianceTexture[0], 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RG32F);
+	// glDispatchCompute(SHADOW_MAP_WIDTH, 1, 1);
+	// glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+	// glBindImageTexture(0, varianceTexture[0], 0, GL_FALSE, 0, GL_READ_ONLY, GL_RG32F);
+	// glBindImageTexture(1, varianceTexture[1], 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RG32F);
+	// glDispatchCompute(SHADOW_MAP_WIDTH, 1, 1);
+	// glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
 
 	// unsigned int shadowMapWidth = 2048, shadowMapHeight = 2048;
 	// glViewport(0, 0, shadowMapWidth, shadowMapHeight);

@@ -46,6 +46,7 @@ private:
 	std::shared_ptr<ShaderProgram> m_pbrShaderProgramPtr; // A GPU program contains at least a vertex shader and a fragment shader
 	std::shared_ptr<ShaderProgram> m_displayShaderProgramPtr; // Full screen quad shader program, for displaying 2D color images
 	std::shared_ptr<ShaderProgram> m_shadowMapingShaderProgramPtr;
+	std::shared_ptr<ShaderProgram> m_SATShaderProgramPtr;
 	GLuint m_displayImageTex; // Texture storing the image to display in non-rasterization mode
 	GLuint m_screenQuadVao;  // Full-screen quad drawn when displaying an image (no scene rasterization) 
 

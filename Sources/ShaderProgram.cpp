@@ -28,7 +28,36 @@ ShaderProgram::~ShaderProgram () {
 }
 
 void ShaderProgram::loadShader (GLenum type, const std::string & shaderFilename) {
-	GLuint shader = glCreateShader (type); // Create the shader, e.g., a vertex shader to be applied to every single vertex of a mesh
+	if(type == GL_COMPUTE_SHADER){
+        GLuint shader = glCreateShader (type); // Create the shader, e.g., a vertex shader to be applied to every single vertex of a mesh
+        std::string shaderSourceString = file2String (shaderFilename); // Loads the shader source from a file to a C++ string
+	    const GLchar * shaderSource = (const GLchar *)shaderSourceString.c_str (); // Interface the C++ string through a C pointer
+        glShaderSource(shader, 1, &shaderSource, NULL);
+        glCompileShader(shader);
+        int result;
+		glGetShaderiv(shader, GL_COMPILE_STATUS, &result);
+
+        if (result == GL_FALSE) {
+			int length;
+			glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &length);
+			char* message = (char*)alloca(length * sizeof(char));
+			//alloca: allow dynamic allocation on stack (no manual release required)
+			glGetShaderInfoLog(shader, length, &length, message);
+
+			std::cout << "Failed to compile ";
+			if (type == GL_VERTEX_SHADER)
+				std::cout << "vertex";
+			else if (type == GL_FRAGMENT_SHADER)
+				std::cout << "fragment";
+			else if (type == GL_COMPUTE_SHADER) 
+				std::cout << "compute";
+			std::cout << " shader!" << std::endl;
+			std::cout << message << std::endl;
+			glDeleteShader(shader);
+		}
+    }
+    
+    GLuint shader = glCreateShader (type); // Create the shader, e.g., a vertex shader to be applied to every single vertex of a mesh
 	std::string shaderSourceString = file2String (shaderFilename); // Loads the shader source from a file to a C++ string
 	const GLchar * shaderSource = (const GLchar *)shaderSourceString.c_str (); // Interface the C++ string through a C pointer
 	glShaderSource (shader, 1, &shaderSource, NULL); // Load the shader source code
@@ -40,6 +69,8 @@ void ShaderProgram::loadShader (GLenum type, const std::string & shaderFilename)
     if (!shaderCompiled)
     	exitOnCriticalError ("Error: shader not compiled. Info. Log.:\n" + shaderInfoLog (shaderFilename, shader) + "\nSource:\n" + shaderSource);
 	glAttachShader (m_id, shader); // Set the vertex shader as the one ot be used with the program/pipeline
+    glLinkProgram(m_id);
+    glValidateProgram(m_id);
 	glDeleteShader (shader);
 }
 
@@ -61,6 +92,18 @@ std::shared_ptr<ShaderProgram> ShaderProgram::genBasicShaderProgram (const std::
 	shaderProgramPtr->loadShader (GL_FRAGMENT_SHADER, fragmentShaderFilename);
 	shaderProgramPtr->link ();
 	return shaderProgramPtr;
+}
+
+
+std::shared_ptr<ShaderProgram> ShaderProgram::genBasicShaderProgram (const std::string & ShaderFilename) {
+	std::string shaderProgramName =  "Shader Program <" + ShaderFilename + ">";
+	std::shared_ptr<ShaderProgram> shaderProgramPtr = std::make_shared<ShaderProgram> (shaderProgramName);
+    
+	shaderProgramPtr->loadShader (GL_COMPUTE_SHADER, ShaderFilename);
+    //shaderProgramPtr->link ();
+    
+
+    return shaderProgramPtr;
 }
 
 std::string ShaderProgram::file2String (const std::string & filename) {

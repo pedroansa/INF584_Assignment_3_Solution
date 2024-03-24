@@ -8,6 +8,7 @@
 class FboShadowMap {
 public:
     GLuint getTextureId() const { return _depthMapTexture; }
+    GLuint getVarianceShadowTextureId(int index) const { return _varianceShadowMapTexture[index]; }
 
    bool allocate(unsigned int width=1024, unsigned int height=768)
 {
@@ -16,7 +17,7 @@ public:
 
     _depthMapTextureWidth = width;
     _depthMapTextureHeight = height;
-
+    float borderColor[] = { 1.0f, 1.0f, 1.0f, 1.0f };
     // Variance shadow mapping texture
     glGenTextures(1, &_depthMapTexture);
     glBindTexture(GL_TEXTURE_2D, _depthMapTexture);
@@ -28,6 +29,23 @@ public:
 
     // Attach it as a color attachment
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, _depthMapTexture, 0);
+
+    glGenFramebuffers(2, _varianceFBO);
+    glGenTextures(2, _varianceShadowMapTexture);
+    for (int i = 0; i < 2; ++i) {
+        glBindFramebuffer(GL_FRAMEBUFFER, _varianceFBO[i]);
+        glBindTexture(GL_TEXTURE_2D, _varianceShadowMapTexture[i]);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RG32F, width, height, 0, GL_RG, GL_FLOAT, nullptr);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D,_varianceShadowMapTexture[i], 0 );
+    }
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+	glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
 
     // Create a renderbuffer object for depth attachment
     GLuint rbo;
@@ -55,15 +73,18 @@ public:
         glClear(GL_DEPTH_BUFFER_BIT);
     }
 
-    void free() { glDeleteFramebuffers(1, &_depthMapFbo); }
+        void free() {
+        glDeleteFramebuffers(1, &_depthMapFbo);
+        glDeleteTextures(1, &_depthMapTexture);
+        glDeleteTextures(2, _varianceShadowMapTexture);
+    }
 
-    // The savePpmFile function would need significant changes to work with RG32F textures,
-    // it might involve reading both channels and then deciding how to visualize them.
-    // This part is left as an exercise or optional implementation detail.
 
 private:
     GLuint _depthMapFbo;
     GLuint _depthMapTexture;
+    unsigned int _varianceShadowMapTexture[2];
+    unsigned int _varianceFBO[2];
     unsigned int _depthMapTextureWidth;
     unsigned int _depthMapTextureHeight;
 };

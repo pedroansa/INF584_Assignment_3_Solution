@@ -336,6 +336,7 @@ void initScene () {
 		light.allocateShadowMapFbo(shadow_map_width, shadow_map_height);
 	}
 	
+	
 
 	// Camera
 	int width, height;

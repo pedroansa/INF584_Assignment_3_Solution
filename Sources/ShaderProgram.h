@@ -25,6 +25,9 @@ public:
 	static std::shared_ptr<ShaderProgram> genBasicShaderProgram (const std::string & vertexShaderFilename,
 															 	 const std::string & fragmentShaderFilename);
 
+	static std::shared_ptr<ShaderProgram> ShaderProgram::genBasicShaderProgram (const std::string & ShaderFilename);
+
+
 	/// OpenGL identifier of the program
 	inline GLuint id () { return m_id; }
 

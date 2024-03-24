@@ -68,12 +68,12 @@ float VSMShadowCalculation(sampler2D shadowMap, vec4 fragPosLightSpace) {
 
     vec2 moments = texture(shadowMap, projCoords.xy).rg;
     float depth = projCoords.z;
-    float bias = 0.5; // Consider adjusting this based on your scene.
+    float bias = 0.9; // Consider adjusting this based on your scene.
     float variance = moments.y - (moments.x * moments.x);
-    variance = max(variance, 0.2); // Ensures a minimum variance to avoid division by zero.
+    variance = max(variance, 0.1); // Ensures a minimum variance to avoid division by zero.
 
     float d = depth + bias - moments.x;
-    float pMax = variance / (variance + d * d);
+    float pMax = variance / (variance + d * d * d);
 
     float lightBleedReduction = 0.2; 
     pMax = mix(pMax, 1.0, lightBleedReduction);
@@ -159,7 +159,7 @@ void main () {
         float shadowFactor = VSMShadowCalculation(shadowMap[i], lightsPos[i]);
     
 		vec3 fr = fd+fs;
-        if(shadowFactor > 0.6){
+        if(shadowFactor < 0.2){
             fr = fd;
         }
 		float nDotL = max (0.0, dot( n, wi));
