@@ -44,6 +44,9 @@ using namespace std;
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
+static Rasterizer::RenderType currentRenderType = Rasterizer::RenderType::Regular;
+
+
 GLuint loadTextureFromFileToGPU(const std::string &filename)
 {
   int width, height, numComponents;
@@ -169,7 +172,17 @@ void keyCallback (GLFWwindow * windowPtr, int key, int scancode, int action, int
 			Material & m = scenePtr->mesh(0)->material();
 			float r = glm::clamp (m.getMetallicness() + (key == GLFW_KEY_F4 ? 0.1f : -0.1f), 0.f, 1.f);
 			m.setMetallicness (r);
-		} else {
+
+		}
+		 else if (key == GLFW_KEY_1) {
+            currentRenderType = Rasterizer::RenderType::Regular;
+        } else if (key == GLFW_KEY_2) {
+            currentRenderType = Rasterizer::RenderType::PCF;
+        } else if (key == GLFW_KEY_3) {
+            currentRenderType = Rasterizer::RenderType::VSM;
+        } else if (key == GLFW_KEY_4) {
+            currentRenderType = Rasterizer::RenderType::VSSM;
+        } else {
 			printHelp ();
 		}
 	}
@@ -369,11 +382,11 @@ void clear () {
 
 
 // The main rendering call
-void render () {
+void render (Rasterizer::RenderType renderType) {
 	if (isDisplayRaytracing)
 		rasterizerPtr->display (rayTracerPtr->image ());
 	else
-		rasterizerPtr->render (scenePtr);
+		rasterizerPtr->render (scenePtr, renderType);
 }
 
 // Update any accessible variable based on the current time
@@ -417,7 +430,7 @@ int main (int argc, char ** argv) {
 	while (!glfwWindowShouldClose (windowPtr)) {
 		update (static_cast<float> (glfwGetTime ()));
 		glEnable(GL_DEPTH_TEST);
-		render ();
+		render (currentRenderType);
 		glfwSwapBuffers (windowPtr);
 		glfwPollEvents ();
 	}

@@ -15,10 +15,10 @@
 bool saveShadowMapsPpm = true;
 
 void Rasterizer::init (const std::string & basePath, const std::shared_ptr<Scene> scenePtr) {
-	glCullFace (GL_BACK);     // Specifies the faces to cull (here the ones pointing away from the camera)
-	glEnable (GL_CULL_FACE); // Enables face culling (based on the orientation defined by the CW/CCW enumeration).
-	glDepthFunc (GL_LESS); // Specify the depth test for the z-buffer
-	glEnable (GL_DEPTH_TEST); // Enable the z-buffer test in the rasterization
+	glCullFace (GL_BACK);     
+	glEnable (GL_CULL_FACE);
+	glDepthFunc (GL_LESS); 
+	glEnable (GL_DEPTH_TEST); 
 	const glm::vec3 & bgColor = scenePtr->backgroundColor ();
 	glClearColor (bgColor[0], bgColor[1], bgColor[2], 1.f);
 	// GPU resources
@@ -74,7 +74,7 @@ void Rasterizer::loadShaderProgram (const std::string & basePath) {
 	m_SATShaderProgramPtr.reset ();
 	try {
 		std::string shaderPath = basePath + "/" + SHADER_PATH;
-		m_SATShaderProgramPtr = ShaderProgram::genBasicShaderProgram (shaderPath + "/SATShader.glsl");
+		m_SATShaderProgramPtr = m_SATShaderProgramPtr->genBasicShaderProgram (shaderPath + "/SATShader.glsl");
 	} catch (std::exception & e) {
 		exitOnCriticalError (std::string ("[Error loading display shader program]") + e.what ());
 	}
@@ -123,8 +123,6 @@ void printVec4(const glm::vec3& vector) {
 }
 
 void Draw(std::shared_ptr<ShaderProgram> shader, std::shared_ptr<Scene> scenePtr, std::vector<GLuint> m_vaos){
-	//CHANGE TO INCLUDE MORE MESHES
-	// Bind shader to be able to access uniforms
 	glUseProgram(shader->id());
 	glBindVertexArray (m_vaos[0]);
 
@@ -145,7 +143,7 @@ glm::mat4 LightSource::getProjectionViewMatrix(
   }
 
 // The main rendering call
-void Rasterizer::render (std::shared_ptr<Scene> scenePtr) {
+void Rasterizer::render (std::shared_ptr<Scene> scenePtr, RenderType shadowType) {
 	const auto & lightSources = scenePtr->lightSources();
 	int numOfLightSources = std::min (8, int (lightSources.size ()));
 
@@ -161,7 +159,6 @@ void Rasterizer::render (std::shared_ptr<Scene> scenePtr) {
 		m_shadowMapingShaderProgramPtr->set("depthMVP", lightMVP.back());
 		li.bindShadowMap();
 
-		// TODO: render the objects in the scene
 		m_shadowMapingShaderProgramPtr->set("model", glm::scale(glm::mat4(1.0f), glm::vec3(scenePtr->mesh(0)->getScale())));
 		draw (0, scenePtr->mesh (0)->triangleIndices().size ());
 		// if(saveShadowMapsPpm) {
@@ -170,19 +167,39 @@ void Rasterizer::render (std::shared_ptr<Scene> scenePtr) {
 		// }
 	}
 	glCullFace(GL_BACK);
-	saveShadowMapsPpm = false;
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
     glViewport(0, 0, 1024, 768);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // Erase the color and z buffers.
-    glCullFace(GL_BACK);
 
+	int shadowTypeint = 0;
+	switch (shadowType) {
+        
+        case RenderType::Regular: {
+			shadowTypeint = 0;
+            break;
+        }
+        case RenderType::PCF: {
+			shadowTypeint = 1;
+            break;
+        }
+        case RenderType::VSM: {
+			shadowTypeint = 2;
+            break;
+        }
+        case RenderType::VSSM: {
+			shadowTypeint = 3;
+            break;
+        }
+        default:
+            // Handle unknown case
+            break;
+    }
 
-	// const glm::vec3 & bgColor = scenePtr->backgroundColor ();
-	// glClearColor (bgColor[0], bgColor[1], bgColor[2], 1.f);
+	m_pbrShaderProgramPtr->set("shadowType", shadowTypeint);
 
 	m_pbrShaderProgramPtr->set ("numOfLightSources", numOfLightSources);
-	for (size_t i = 0; i < numOfLightSources; ++i) {
+	for (size_t i = 0; i < 1; ++i) {
 		const auto & li = lightSources[i];
 		std::string lstring = "lightSourceSet[" + std::to_string (i) + "]";
 		m_pbrShaderProgramPtr->set (lstring + ".position", li.getTranslation ());
@@ -221,39 +238,23 @@ void Rasterizer::render (std::shared_ptr<Scene> scenePtr) {
 
 	}
 	m_pbrShaderProgramPtr->stop ();
-	m_SATShaderProgramPtr->use();
 
-	for (size_t i = 0; i < 1; ++i) {
-		const auto & li = lightSources[i];
-		
-		glBindImageTexture(0,li.m_shadowMap.getTextureId(), 0, GL_FALSE, 0, GL_READ_ONLY, GL_RG32F);
-		glBindImageTexture(1, li.m_shadowMap.getVarianceShadowTextureId(0), 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RG32F);
-		glDispatchCompute(2000, 1, 1);
-		glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
-		glBindImageTexture(0, li.m_shadowMap.getVarianceShadowTextureId(0), 0, GL_FALSE, 0, GL_READ_ONLY, GL_RG32F);
-		glBindImageTexture(1, li.m_shadowMap.getVarianceShadowTextureId(1), 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RG32F);
-		glDispatchCompute(2000, 1, 1);
-		glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+	if(shadowType == RenderType::VSSM){
+		m_SATShaderProgramPtr->use();
 
-
+		for (size_t i = 0; i < lightSources.size(); ++i) {
+			const auto & li = lightSources[i];
+			glBindImageTexture(0, li.m_shadowMap.getTextureId(), 0, GL_FALSE, 0, GL_READ_ONLY, GL_RG32F);
+			glBindImageTexture(1, li.m_shadowMap.getVarianceShadowTextureId(0), 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RG32F);
+			glDispatchCompute(2000, 1, 1);
+			glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+			glBindImageTexture(0, li.m_shadowMap.getVarianceShadowTextureId(0), 0, GL_FALSE, 0, GL_READ_ONLY, GL_RG32F);
+			glBindImageTexture(1, li.m_shadowMap.getVarianceShadowTextureId(1), 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RG32F);
+			glDispatchCompute(2000, 1, 1);
+			glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+		}
+		m_SATShaderProgramPtr->stop();
 	}
-	m_SATShaderProgramPtr->stop();
-	// glBindImageTexture(0, depthMap, 0, GL_FALSE, 0, GL_READ_ONLY, GL_RG32F);
-	// glBindImageTexture(1, varianceTexture[0], 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RG32F);
-	// glDispatchCompute(SHADOW_MAP_WIDTH, 1, 1);
-	// glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
-	// glBindImageTexture(0, varianceTexture[0], 0, GL_FALSE, 0, GL_READ_ONLY, GL_RG32F);
-	// glBindImageTexture(1, varianceTexture[1], 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RG32F);
-	// glDispatchCompute(SHADOW_MAP_WIDTH, 1, 1);
-	// glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
-
-	// unsigned int shadowMapWidth = 2048, shadowMapHeight = 2048;
-	// glViewport(0, 0, shadowMapWidth, shadowMapHeight);
-	// glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
-	//glClear(GL_DEPTH_BUFFER_BIT);
-
-	//Draw (m_shadowMapingShaderProgramPtr, scenePtr, m_vaos);
-	
 }
 
 void Rasterizer::display (std::shared_ptr<Image> imagePtr) {

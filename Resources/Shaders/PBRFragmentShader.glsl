@@ -17,11 +17,13 @@ struct Material {
 
 //ShadowMAP PART
 uniform sampler2D shadowMap[3];
+uniform int shadowType;
 
 uniform mat4 viewMat;
 uniform int numOfLightSources;
 uniform LightSource lightSourceSet[MAX_NUM_OF_LIGHT_SOURCES];
 uniform Material material;
+
 
 in vec3 fNormal; // Shader input, linearly interpolated by default from the previous stage (here the vertex shader)
 in vec3 fPosition; // Shader input, linearly interpolated by default from the previous stage (here the vertex shader)
@@ -34,15 +36,23 @@ bool isShadowed(vec4 fragPosLightSpace, sampler2D shadowmap) {
     vec3 projCoords = fragPosLightSpace.xyz / fragPosLightSpace.w;
     projCoords = projCoords * 0.5 + 0.5;
     float closestDepth = texture(shadowmap, projCoords.xy).r;
-    float currentDepth = projCoords.z - 0.05;
+    float currentDepth = projCoords.z - 0.5;
     return currentDepth > closestDepth;
 }
 
 
-float shadowPCF(sampler2D shadowMap, vec4 fragPosLightSpace, float shadowBias, vec2 texelSize, int filterSize) {
+float shadowPCF(sampler2D shadowMap, vec4 fragPosLightSpace) {
+    float shadowBias = 0.3;
+    vec2 texelSize = vec2(1); 
+    int filterSize = 3;
+
     vec3 projCoords = fragPosLightSpace.xyz / fragPosLightSpace.w;
-    projCoords = projCoords * 0.5 + 0.5; // Transform to [0,1] space
+    projCoords = projCoords * 0.5 + 0.5; 
     float currentDepth = projCoords.z - shadowBias;
+
+    if (projCoords.z + shadowBias < 1.0) {
+        return 1.0f;
+	}
 
     float shadow = 0.0;
     vec2 texelStep = texelSize / textureSize(shadowMap, 0); // Get the size of one texel
@@ -68,18 +78,70 @@ float VSMShadowCalculation(sampler2D shadowMap, vec4 fragPosLightSpace) {
 
     vec2 moments = texture(shadowMap, projCoords.xy).rg;
     float depth = projCoords.z;
-    float bias = 0.9; // Consider adjusting this based on your scene.
+    float bias = 0.9; 
     float variance = moments.y - (moments.x * moments.x);
     variance = max(variance, 0.1); // Ensures a minimum variance to avoid division by zero.
 
-    float d = depth + bias - moments.x;
-    float pMax = variance / (variance + d * d * d);
+    float d = depth - bias - moments.x;
+    if (d > 1.0) {
+		return 1.0f;
+	}
+    float pMax = variance / (variance + d * d );
 
-    float lightBleedReduction = 0.2; 
+    float lightBleedReduction = 0.5; 
     pMax = mix(pMax, 1.0, lightBleedReduction);
 
     return pMax;
 }
+
+// vec4 calculateAreaMoments(sampler2D SATshadow, vec3 projCoords) {
+//     vec2 stride = 1.0 / vec2(u_TextureSize);
+    
+//     float xmax = projCoords.x + wPenumbra * stride.x;
+//     float xmin = projCoords.x - wPenumbra * stride.x;
+//     float ymax = projCoords.y + wPenumbra * stride.y;
+//     float ymin = projCoords.y - wPenumbra * stride.y;
+    
+//     vec4 A = texture(DepthSAT, vec2(xmin, ymin));
+//     vec4 B = texture(DepthSAT, vec2(xmax, ymin));
+//     vec4 C = texture(DepthSAT, vec2(xmin, ymax));
+//     vec4 D = texture(DepthSAT, vec2(xmax, ymax));
+    
+//     float sPenumbra = 2.0 * wPenumbra;
+//     vec4 moments = (D + A - B - C) / float(sPenumbra * sPenumbra);
+    
+//     return moments;
+// }
+
+// float chebyshevInequality(vec2 moments, float depth, float bias) {
+//     float variance = moments.y - (moments.x * moments.x);
+//     variance = max(variance, 0.00002); // Avoid division by zero
+//     float d = depth - moments.x; // Depth difference
+//     d = max(d - bias, 0.0);
+//     return variance / (variance + d * d);
+// }
+
+// float VSSM_ShadowCalculation(vec4 fragPosLightSpace) {
+//     float lightSize = u_LightSize; // Assuming this is defined somewhere
+//     float textureSize = u_TextureSize; // Assuming this is defined somewhere
+//     float bias = max(0.005 * (1.0 - dot(normalize(fNormal), normalize(-fragPosLightSpace.xyz))), 0.005);
+
+//     vec3 projCoords = fragPosLightSpace.xyz / fragPosLightSpace.w;
+//     projCoords = projCoords * 0.5 + 0.5;
+
+//     float currentDepth = projCoords.z - bias;
+//     if (currentDepth > 1.0) return 1.0;
+
+//     float blockerSearchSize = lightSize / 2.0;
+//     float border = blockerSearchSize / textureSize;
+//     if (projCoords.x <= border || projCoords.x >= 1.0 - border || projCoords.y <= border || projCoords.y >= 1.0 - border) {
+//         return 1.0;
+//     }
+
+//     vec2 moments = getMean(blockerSearchSize, projCoords.xy);
+//     float shadow = chebyshevInequality(moments, currentDepth, bias);
+//     return shadow;
+// }
 
 
 vec3 toneMap (vec3 radiance, float exposure, float gamma) {
@@ -144,11 +206,8 @@ void main () {
     vec2 texelSize = vec2(1); // Adjust based on your shadow map resolution
     int filterSize = 3; // Increase for softer shadows
 
-    // Replace the shadow calculation with:
-    float shadow = 0.0;
-
+    float shadowFactor = 0;
 	for (int i = 0; i < min (1, numOfLightSources); ++i) {
-		c[i] = 0.f;// texture(shadowMap[i], 0.5, 0.).r;
 			
 		LightSource l = lightSourceSet[i];
 		vec3 lightPosition = vec3 (viewMat * vec4 (l.position, 1.0));
@@ -156,17 +215,34 @@ void main () {
 		vec3 li = attenuation (l, lightPosition, fPosition);
 		vec3 fd = diffuseBRDF (material);
 		vec3 fs = microfacetBRDF (material, n, wo, wi);
-        float shadowFactor = VSMShadowCalculation(shadowMap[i], lightsPos[i]);
-    
-		vec3 fr = fd+fs;
-        if(shadowFactor >= 0.2){
-            fr = fd;
+        if(shadowType == 0){
+            if(isShadowed(lightsPos[i], shadowMap[i])){
+                shadowFactor = 1;
+            }
+
+            else{
+                shadowFactor = 0;
+            }
+
         }
+
+        else if (shadowType == 1){
+             shadowFactor = shadowPCF(shadowMap[i], lightsPos[i]);
+        }
+
+        else if (shadowType == 2){
+            shadowFactor = VSMShadowCalculation(shadowMap[i], lightsPos[i]);
+        }
+
+        // else if (shadowType == 3){
+        //     //shadowFactor = VSSM_ShadowCalculation(lightsPos[i], wi);
+        // }    
+		vec3 fr = fd+fs;
+     
 		float nDotL = max (0.0, dot( n, wi));
         
-        radiance += (1-shadowFactor) * li * fr * nDotL;
+        radiance += (shadowFactor) * li * fr * nDotL;
 	}
-	//radiance = toneMap (radiance, 1.0, 1.0);
-	//colorResponse = vec4 (c[0], c[1], c[2], 1.0);
+
 	colorResponse = vec4(radiance, 1.0);
 }

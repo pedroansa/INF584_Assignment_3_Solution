@@ -19,6 +19,13 @@
 class Rasterizer {
 public:
 
+	enum class RenderType {
+		Regular,
+		PCF,
+		VSM,
+		VSSM
+	};
+
 	inline Rasterizer () {}
 
 	virtual ~Rasterizer () {}
@@ -30,7 +37,7 @@ public:
 	void initDisplayedImage ();
 	/// Loads and compile the programmable shader pipeline
 	void loadShaderProgram (const std::string & basePath);
-	void render (std::shared_ptr<Scene> scenePtr);
+	void render (std::shared_ptr<Scene> scenePtr, RenderType shadowType);
 	void display (std::shared_ptr<Image> imagePtr);
 	void clear ();
 	bool oneTime = true;
