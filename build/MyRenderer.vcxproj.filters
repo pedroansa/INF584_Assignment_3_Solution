@@ -1,0 +1,87 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="C:\Users\pedro\OneDrive\Área de Trabalho\INF584_Assignment_3_Solution\Sources\Main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\pedro\OneDrive\Área de Trabalho\INF584_Assignment_3_Solution\Sources\Console.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\pedro\OneDrive\Área de Trabalho\INF584_Assignment_3_Solution\Sources\Error.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\pedro\OneDrive\Área de Trabalho\INF584_Assignment_3_Solution\Sources\Camera.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\pedro\OneDrive\Área de Trabalho\INF584_Assignment_3_Solution\Sources\Mesh.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\pedro\OneDrive\Área de Trabalho\INF584_Assignment_3_Solution\Sources\MeshLoader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\pedro\OneDrive\Área de Trabalho\INF584_Assignment_3_Solution\Sources\RayTracer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\pedro\OneDrive\Área de Trabalho\INF584_Assignment_3_Solution\Sources\Rasterizer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\pedro\OneDrive\Área de Trabalho\INF584_Assignment_3_Solution\Sources\Hit.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\pedro\OneDrive\Área de Trabalho\INF584_Assignment_3_Solution\Sources\Ray.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\pedro\OneDrive\Área de Trabalho\INF584_Assignment_3_Solution\Sources\ShaderProgram.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="C:\Users\pedro\OneDrive\Área de Trabalho\INF584_Assignment_3_Solution\Sources\Console.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\pedro\OneDrive\Área de Trabalho\INF584_Assignment_3_Solution\Sources\Error.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\pedro\OneDrive\Área de Trabalho\INF584_Assignment_3_Solution\Sources\Image.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\pedro\OneDrive\Área de Trabalho\INF584_Assignment_3_Solution\Sources\Transform.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\pedro\OneDrive\Área de Trabalho\INF584_Assignment_3_Solution\Sources\Camera.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\pedro\OneDrive\Área de Trabalho\INF584_Assignment_3_Solution\Sources\Mesh.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\pedro\OneDrive\Área de Trabalho\INF584_Assignment_3_Solution\Sources\MeshLoader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\pedro\OneDrive\Área de Trabalho\INF584_Assignment_3_Solution\Sources\RayTracer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\pedro\OneDrive\Área de Trabalho\INF584_Assignment_3_Solution\Sources\Rasterizer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\pedro\OneDrive\Área de Trabalho\INF584_Assignment_3_Solution\Sources\Resources.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\pedro\OneDrive\Área de Trabalho\INF584_Assignment_3_Solution\Sources\ShaderProgram.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\pedro\OneDrive\Área de Trabalho\INF584_Assignment_3_Solution\Sources\Scene.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="C:\Users\pedro\OneDrive\Área de Trabalho\INF584_Assignment_3_Solution\CMakeLists.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{581A9ED4-D862-3215-B0C3-F77EA9F92AFC}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{0D0D27C2-A9AE-3E54-8E45-B7793A25BD48}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

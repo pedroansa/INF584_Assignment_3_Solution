@@ -1,0 +1,27 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="C:\Users\pedro\OneDrive\Área de Trabalho\INF584_Assignment_3_Solution\build\External\glad\src\glad.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="C:\Users\pedro\OneDrive\Área de Trabalho\INF584_Assignment_3_Solution\build\External\glad\include\glad\glad.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="C:\Users\pedro\OneDrive\Área de Trabalho\INF584_Assignment_3_Solution\External\glad\CMakeLists.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="CMake Rules">
+      <UniqueIdentifier>{D27E5610-F566-3E35-8A55-71CCA025084E}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{581A9ED4-D862-3215-B0C3-F77EA9F92AFC}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{0D0D27C2-A9AE-3E54-8E45-B7793A25BD48}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

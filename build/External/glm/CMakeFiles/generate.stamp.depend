@@ -1,0 +1,9 @@
+# CMake generation dependency list for this directory.
+C:/Program Files/CMake/share/cmake-3.24/Modules/BasicConfigVersion-AnyNewerVersion.cmake.in
+C:/Program Files/CMake/share/cmake-3.24/Modules/CMakePackageConfigHelpers.cmake
+C:/Program Files/CMake/share/cmake-3.24/Modules/GNUInstallDirs.cmake
+C:/Program Files/CMake/share/cmake-3.24/Modules/WriteBasicConfigVersionFile.cmake
+C:/Users/pedro/OneDrive/Área de Trabalho/INF584_Assignment_3_Solution/External/glm/CMakeLists.txt
+C:/Users/pedro/OneDrive/Área de Trabalho/INF584_Assignment_3_Solution/External/glm/cmake/glm.pc.in
+C:/Users/pedro/OneDrive/Área de Trabalho/INF584_Assignment_3_Solution/External/glm/cmake/glmBuildConfig.cmake.in
+C:/Users/pedro/OneDrive/Área de Trabalho/INF584_Assignment_3_Solution/External/glm/cmake/glmConfig.cmake.in
